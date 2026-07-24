@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 import scipy as scp
 
-sys.path.append("./dynamic_model/")
+sys.path.append("./src/")
 import numpy as np
 from scores.collision_scores import (
     compute_collision_counts_and_length,
