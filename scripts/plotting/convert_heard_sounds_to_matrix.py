@@ -16,7 +16,7 @@ sys.path.append("./exploratory_analysis/")
 sys.path.append("./src/")
 
 
-from plotting.read_simulation_output import read_data_per_simulation_per_bat
+from supporting_files.read_simulation_output import read_data_per_simulation_per_bat
 from supporting_files.snr_implementation import parse_sounds, serialize_sound_info
 
 plt.style.use("dark_background")

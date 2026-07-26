@@ -13,6 +13,8 @@ import pandas as pd
 # from supporting_files.store_history import CompactHistoryManager
 
 sys.path.append("./src/")
+sys.path.append("./scripts/")
+
 from agents.class_bats import Bat
 from agents.class_obstacles import Obstacle
 from agents.class_sounds import DirectSound
@@ -47,7 +49,7 @@ class Simulation:
             Bat(self.parameters_df, self.output_dir)
             for _ in range(int(self.parameters_df["NUM_BATS"]))
         ]
-        self.bats[0].allocentric_axis_y = Vector(0, 1)
+
         obstacle_position = "random"
         obstacle_radius = self.parameters_df["OBSTACLE_RADIUS"]
         self.obstacles = [

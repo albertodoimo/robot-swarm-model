@@ -11,20 +11,20 @@ import numpy as np
 import pandas as pd
 from matplotlib.patches import Arrow, Circle, Patch, Rectangle, Wedge
 
-sys.path.append("./MISC/analysis_of_data/")
-sys.path.append("./MISC/exploratory_analysis/")
-sys.path.append("./MISC/src/")
+sys.path.append("./src/")
+sys.path.append("./scripts/")
 
 from plotting.convert_heard_sounds_to_matrix import (
-    convert_into_grids,
     convert_into_grids_time_series,
     convert_matrix_for_plotting_nicer,
     generate_heard_sounds_array,
     generate_matrix_array,
 )
-from plotting.read_simulation_output import read_data_per_simulation_per_bat
-from supoporting_files.snr_implementation import parse_sounds, serialize_sound_info
+
+from supporting_files.read_simulation_output import read_data_per_simulation_per_bat
+from supporting_files.snr_implementation import parse_sounds, serialize_sound_info
 from supporting_files.supporting_functions_for_consistency import (
+    convert_detected_sounds_into_grids,
     given_parameters_df_return_grid_matrix_zeros,
 )
 from supporting_files.supporting_functions_for_loudest_sound import (

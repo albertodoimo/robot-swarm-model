@@ -15,6 +15,8 @@ sys.path.append("./MISC/analysis_of_data/")
 sys.path.append("./MISC/exploratory_analysis/")
 sys.path.append("./MISC/src/")
 
+
+from supporting_files.supporting_functions_for_consistency import convert_detected_sounds_into_grids
 from convert_heard_sounds_to_matrix import (
     convert_into_grids,
     convert_into_grids_time_series,
