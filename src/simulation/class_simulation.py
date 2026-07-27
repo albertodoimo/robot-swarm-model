@@ -15,11 +15,12 @@ import pandas as pd
 sys.path.append("./src/")
 sys.path.append("./scripts/")
 
+from plotting.sim_plotter_single_bat_acoustic_field import visualize
+
 from agents.class_bats import Bat
 from agents.class_obstacles import Obstacle
 from agents.class_sounds import DirectSound
 from agents.make_walls import make_walls
-from plotting.sim_plotter_single_bat_acoustic_field import visualize
 from supporting_files.utilities import (
     creation_time_calculation,
     load_parameters,
@@ -49,7 +50,7 @@ class Simulation:
             Bat(self.parameters_df, self.output_dir)
             for _ in range(int(self.parameters_df["NUM_BATS"]))
         ]
-
+        self.bats[0].allocentric_axis_y = Vector(0, 1)
         obstacle_position = "random"
         obstacle_radius = self.parameters_df["OBSTACLE_RADIUS"]
         self.obstacles = [
@@ -106,48 +107,44 @@ class Simulation:
         save_time_of_last_iter = start_timing
 
         for time_step in time_array[1:]:
-            try:
-                self.time_elapsed = time_step
+            # print(time_step)
+            # try:
+            self.time_elapsed = time_step
 
-                for sound in self.sound_objects:
-                    sound.update(self.time_elapsed)
+            for sound in self.sound_objects:
+                sound.update(self.time_elapsed)
 
-                for bat in self.bats:
-                    bat.update(
-                        self.time_elapsed, self.sound_objects, temporal_masking_file
-                    )
+            for bat in self.bats:
+                bat.update(self.time_elapsed, self.sound_objects, temporal_masking_file)
 
-                for jammer in self.jammers:
-                    jammer.update(self.time_elapsed, self.sound_objects)
+            for jammer in self.jammers:
+                jammer.update(self.time_elapsed, self.sound_objects)
 
-                self.handle_reflections(self.time_elapsed)
+            self.handle_reflections(self.time_elapsed)
 
-                self.sound_objects = [
-                    s
-                    for s in self.sound_objects
-                    if s.active
-                    and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
-                ]
+            self.sound_objects = [
+                s
+                for s in self.sound_objects
+                if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+            ]
 
-                self.history.append(self.convert_necessary_information_into_dict())
-                current_loop_time = datetime.now()
-                list_time_taken_for_each_loop.append(
-                    current_loop_time - save_time_of_last_iter
-                )
+            self.history.append(self.convert_necessary_information_into_dict())
+            current_loop_time = datetime.now()
+            list_time_taken_for_each_loop.append(
+                current_loop_time - save_time_of_last_iter
+            )
 
-                save_time_of_last_iter = current_loop_time
+            save_time_of_last_iter = current_loop_time
 
-                if self.store_history:
-                    # self.handle_data_storage_for_plotting(self.time_elapsed, False)
-                    self.handle_data_storage_for_plotting_pickle(
-                        self.time_elapsed, False
-                    )
-            except BaseException:
-                print("Unexpected error:", sys.exc_info()[0])
-                print(
-                    f"error in file {self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"]}"
-                )
-                break
+            if self.store_history:
+                # self.handle_data_storage_for_plotting(self.time_elapsed, False)
+                self.handle_data_storage_for_plotting_pickle(self.time_elapsed, False)
+            # except BaseException:
+            #     print("Unexpected error:", sys.exc_info()[0])
+            #     print(
+            #         f"error in file {self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"]}"
+            #     )
+            #     break
 
         if self.store_history:
             # self.handle_data_storage_for_plotting(self.time_elapsed, True)
@@ -176,11 +173,11 @@ class Simulation:
                 (bat.direction.normalize().x, bat.direction.normalize().y)
                 for bat in self.bats
             ],
-            # "sound_objects": [
-            #     self.serialize_sound(s)
-            #     for s in self.sound_objects
-            #     if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
-            # ],
+            "sound_objects": [
+                self.serialize_sound(s)
+                for s in self.sound_objects
+                if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+            ],
             "sound_objects_count": len(self.sound_objects),
             "jammer_positions": [
                 (jammer.position.x, jammer.position.y) for jammer in self.jammers
@@ -387,7 +384,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/sensory_volume/5_bats_7"
+    OUTPUT_DIR = r"./data/raw/attraction_loudest_sound/1bats_working_1/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)
@@ -399,7 +396,7 @@ if __name__ == "__main__":
         save_animation=True,
         unique_id=unique_id,
         resolution=30,
-        show_sounds=False,
+        show_sounds=True,
         focal_bat=0,
     )
     print(unique_id)

@@ -30,7 +30,7 @@ param = (0, True, np.pi)
 def generate_heard_sounds_array(directory, focal_bat, parameters_df):
     azimuth = parameters_df["HEARING_ANGLE_THRESHOLD"]
     num_bats = parameters_df["NUM_BATS"]
-    time_threshold_post_call = parameters_df["TIME_DELAY_FOR_DIRECTION_CHANGE"]
+    time_threshold_post_call = parameters_df["CONSISTENCY_TIME_DELAY_CAP"]
 
     output_dir = directory + f"/{focal_bat}/"
     received_sounds_sorted_by_time, time_of_call_emissions = (
@@ -57,7 +57,7 @@ def generate_heard_sounds_array(directory, focal_bat, parameters_df):
 def generate_matrix_array(directory, focal_bat, parameters_df):
     azimuth = parameters_df["HEARING_ANGLE_THRESHOLD"]
     num_bats = parameters_df["NUM_BATS"]
-    time_threshold_post_call = parameters_df["TIME_DELAY_FOR_DIRECTION_CHANGE"]
+    time_threshold_post_call = parameters_df["CONSISTENCY_TIME_DELAY_CAP"]
 
     output_dir = directory + f"/{focal_bat}/"
     received_sounds_sorted_by_time, time_of_call_emissions = (
@@ -83,7 +83,7 @@ def generate_matrix_array(directory, focal_bat, parameters_df):
 
 
 def convert_into_grids(heard_sounds_array, focal_bat, parameters_df):
-    time_threshold_post_call = parameters_df["TIME_DELAY_FOR_DIRECTION_CHANGE"]
+    time_threshold_post_call = parameters_df["CONSISTENCY_TIME_DELAY_CAP"]
     duration_of_call = parameters_df["CALL_DURATION"]
     spatial_grid_r = np.arange(
         duration_of_call, time_threshold_post_call, RADIAL_RESOLUTION
@@ -128,7 +128,7 @@ def convert_into_grids_time_series(
     heard_sounds_array, focal_bat, parameters_df, time_series_of_call_emission
 ):
 
-    time_threshold_post_call = parameters_df["TIME_DELAY_FOR_DIRECTION_CHANGE"]
+    time_threshold_post_call = parameters_df["CONSISTENCY_TIME_DELAY_CAP"]
     duration_of_call = parameters_df["CALL_DURATION"]
     spatial_grid_r = np.arange(
         duration_of_call, time_threshold_post_call, RADIAL_RESOLUTION

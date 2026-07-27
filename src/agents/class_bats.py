@@ -3,9 +3,11 @@
 import random
 
 import numpy as np
+
 from agents.class_sounds import DirectSound
 from supporting_files.bats_response_to_sound import (  # decide_next_direction_based_on_loudest_sound,
     decide_next_direction_based_on_consistency,
+    decide_next_direction_based_on_loudness,
 )
 from supporting_files.snr_implementation import (
     given_sound_objects_return_detected_sounds,
@@ -57,7 +59,10 @@ class Bat:
         self.radius = self.parameters_df["BAT_RADIUS"]  # bat radius
 
         self.detections_for_direction_change = []  # initiate detection list
-        self.time_since_direction_change = -np.inf  # time counter, direction change
+        self.time_since_direction_change_using_consistency = (
+            -np.inf
+        )  # time counter, direction change
+        self.time_since_direction_change_using_loudness = -np.inf
         self.next_direction = self.direction  #
 
         self.memory_window_to_store_grids = []
@@ -95,7 +100,7 @@ class Bat:
 
         self.update_movement()
         self.emit_sounds(current_time, sound_objects)
-        if self.id == 0 and self.time_since_direction_change == 0:
+        if self.id == 0 and self.time_since_direction_change_using_consistency == 0:
             print(f"bat_0_emit_at_{self.emit_times[-1]}")
         self.update_direction(current_time, sound_objects, temporal_masking_file)
 
@@ -161,7 +166,8 @@ class Bat:
             self.next_direction = self.direction
 
             # start the timer for direction change
-            self.time_since_direction_change = 0
+            self.time_since_direction_change_using_consistency = 0
+            self.time_since_direction_change_using_loudness = 0
             # add jitter to the next call
             self.time_since_last_call = np.random.uniform(
                 -self.parameters_df["NOISE_IN_CALL_RATE"],
@@ -228,7 +234,7 @@ class Bat:
             list: sound detections given time.
         """
         array_of_sound_detections = []
-        # if bat is calling it shouldnt hear anything
+        # if bat is calling it shouldnt hear anyth ing
         is_bat_calling = (
             current_time < self.emit_times[-1] + self.parameters_df["CALL_DURATION"]
         )
@@ -355,7 +361,12 @@ class Bat:
             current_time (float): Time, in seconds, for which the simualtion has been running.
             sound_objects (list): list containing detected sounds
         """
-        self.time_since_direction_change += self.parameters_df["TIME_STEP"]
+        self.time_since_direction_change_using_consistency += self.parameters_df[
+            "TIME_STEP"
+        ]
+        self.time_since_direction_change_using_loudness += self.parameters_df[
+            "TIME_STEP"
+        ]
 
         implement_snr = str2bool(self.parameters_df["IMPLEMENT_SNR"])
         min_sound_detection_fraction = self.parameters_df[
@@ -369,24 +380,37 @@ class Bat:
             self.parameters_df["HEARING_ANGLE_THRESHOLD"]
         )
 
-        direction_change_time_interval = self.parameters_df[
-            "TIME_DELAY_FOR_DIRECTION_CHANGE"
+        direction_change_time_interval_using_consistency = self.parameters_df[
+            "CONSISTENCY_TIME_DELAY_CAP"
         ]
+        direction_change_time_interval_using_loudness = self.parameters_df[
+            "LOUDNESS_TIME_DELAY_CAP"
+        ]
+
         self.detections_for_direction_change.extend(
             self.given_sound_objects_return_sounds_at_bat_position(
                 current_time, sound_objects
             )
         )
+        use_loudness_attraction = (
+            direction_change_time_interval_using_loudness
+            > direction_change_time_interval_using_consistency
+        )
         # print(self.detections_for_direction_change)
+
         if (
-            self.time_since_direction_change >= direction_change_time_interval
+            self.time_since_direction_change_using_consistency
+            >= direction_change_time_interval_using_consistency
             and len(self.detections_for_direction_change) != 0
         ):
+            print(
+                f"consistency ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id}"
+            )
 
             if implement_snr:
                 heard_sounds = given_sound_objects_return_detected_sounds(
                     self.detections_for_direction_change,
-                    direction_change_time_interval,
+                    direction_change_time_interval_using_consistency,
                     hearing_angle_threshold,
                     temporal_masking_file,
                     min_sound_detection_fraction,
@@ -408,19 +432,63 @@ class Bat:
             self.next_direction, self.response_type = self.decide_next_direction(
                 heard_sounds
             )
-            # self.detections_for_direction_change = []
-            self.time_since_direction_change = -np.inf
 
             if self.response_type == "attraction":
                 self.speed = self.parameters_df["BAT_FAST_SPEED"]
+
+            self.time_since_direction_change_using_consistency = -np.inf
+
+            # NOTE
+            self.detections_for_direction_change = []
+
         elif (
-            self.time_since_direction_change >= direction_change_time_interval
+            self.time_since_direction_change_using_consistency
+            >= direction_change_time_interval_using_consistency
             and len(self.detections_for_direction_change) == 0
         ):
             self.ipi_matrix_for_consistency = (
                 given_parameters_df_return_grid_matrix_zeros(self.parameters_df)[0]
             )
             self.memory_window_sum_matrix = self.ipi_matrix_for_consistency.copy()
+
+        # TODO: NEW STUFF REGARDING LOUDNESS
+
+        if (
+            use_loudness_attraction
+            and self.time_since_direction_change_using_loudness
+            >= direction_change_time_interval_using_loudness
+            and len(self.detections_for_direction_change) != 0
+        ):
+            print(
+                f"loudness_ran at {current_time} and {self.time_since_direction_change_using_loudness} and id {self.id}"
+            )
+            if implement_snr:
+                heard_sounds = given_sound_objects_return_detected_sounds(
+                    self.detections_for_direction_change,
+                    direction_change_time_interval_using_consistency,
+                    hearing_angle_threshold,
+                    temporal_masking_file,
+                    min_sound_detection_fraction,
+                    self.id,
+                    include_direct_sounds_in_response,
+                    self.parameters_df["CALL_DURATION"],
+                    self.parameters_df["TIME_STEP"],
+                    self.rounding_based_on_time_step,
+                )
+            else:
+                heard_sounds = self.detections_for_direction_change
+
+            self.list_to_store_sounds.extend(heard_sounds)
+
+            self.next_direction, self.response_type = (
+                decide_next_direction_based_on_loudness(self, heard_sounds)
+            )
+
+            # self.detections_for_direction_change = []
+            self.time_since_direction_change_using_loudness = -np.inf
+
+            if self.response_type == "attraction":
+                self.speed = self.parameters_df["BAT_FAST_SPEED"]
 
         rotation_speed = np.radians(self.parameters_df["BAT_ROTATION_SPEED"])
         rotation_speed_scaled_by_time_step = (
