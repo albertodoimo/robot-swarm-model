@@ -451,8 +451,8 @@ def visualize(
                     x=x, y=y, dx=dx * scale, dy=dy * scale
                 )
                 next_direction_arrows[j].set(fc=fcolor)
-            if j == focal_bat:
-                trajectory_history[j].append((x, y))
+            # if j == focal_bat:
+            # trajectory_history[j].append((x, y))
 
             # Keep only the last 400 positions
             if len(trajectory_history[j]) > 100:
@@ -571,7 +571,8 @@ if __name__ == "__main__":
     OUTPUT_DIR = (
         # r"./chain_experiment/3_of_5_position_0/"
         # "/home/adityamoger/Documents/GitHub/src_of_cocktail_party_nightmare/MISC/consistency_of_calls_movement_rule_data/presence_revamp_10"
-        r"./MISC/sensory_volume_trials/20_bats_3"
+        # r"./MISC/sensory_volume_trials/20_bats_3"
+        r"./data/raw/attraction_loudest_sound/sustained_sounds/10_bats/2/"
     )
     SAVE_ANIMATION = OUTPUT_DIR
     visualize(

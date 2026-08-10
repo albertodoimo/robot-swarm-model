@@ -103,7 +103,7 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
             self.allocentric_axis_y,
         )
     )
-    print(self.ipi_matrix_for_sensory_volume)
+    # print(self.ipi_matrix_for_sensory_volume)
     cell_index_to_respond_to = given_matrix_find_cell_to_respond_to_loudest_sound(
         self.ipi_matrix_for_sensory_volume, self.parameters_df
     )

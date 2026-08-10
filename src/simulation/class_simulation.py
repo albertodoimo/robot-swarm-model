@@ -173,11 +173,11 @@ class Simulation:
                 (bat.direction.normalize().x, bat.direction.normalize().y)
                 for bat in self.bats
             ],
-            "sound_objects": [
-                self.serialize_sound(s)
-                for s in self.sound_objects
-                if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
-            ],
+            # "sound_objects": [
+            #     self.serialize_sound(s)
+            #     for s in self.sound_objects
+            #     if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+            # ],
             "sound_objects_count": len(self.sound_objects),
             "jammer_positions": [
                 (jammer.position.x, jammer.position.y) for jammer in self.jammers
@@ -384,7 +384,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/attraction_loudest_sound/1bats_working_1/"
+    OUTPUT_DIR = r"./data/raw/swarm_tests/3_bats/9/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)
@@ -396,7 +396,7 @@ if __name__ == "__main__":
         save_animation=True,
         unique_id=unique_id,
         resolution=30,
-        show_sounds=True,
+        show_sounds=False,
         focal_bat=0,
     )
     print(unique_id)

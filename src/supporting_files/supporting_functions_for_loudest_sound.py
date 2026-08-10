@@ -96,11 +96,11 @@ def convert_detected_sounds_into_grids_loudest_sound(
 
 def given_matrix_find_cell_to_respond_to_loudest_sound(matrix, parameters_df):
     matrix = np.matrix(matrix)
-    print(matrix)
+    # print(matrix)
     loudest_cell = np.argmax(matrix)
     output_cell_number = (0, loudest_cell)
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
-    print(matrix[output_cell_number])
+    # print(matrix[output_cell_number])
     if matrix[output_cell_number] < intensity_threshold_for_attraction:
         output_cell_number = [np.nan, np.nan]
     return output_cell_number
