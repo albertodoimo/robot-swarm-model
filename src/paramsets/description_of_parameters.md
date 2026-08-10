@@ -43,7 +43,7 @@ Parameters crucial for the simulation are described in this file. Details about 
 1. "IMPLEMENT_SNR": Yes to implement signal to noise ratio based paradigm of sound detection (Bool). Refer to *r"./src/utilities/snr_implementation.py"* for more details.
 2. "MINIMUM_SOUND_DETECTION_FRACTION": Minimum fraction of the focal sound profile that needs to be above the total masking profile in order to be considered as detected. Refer to *r"./src/utilities/snr_implementation.py"* for more details.
 ### Parameters related to bat behaviour :0
-1. "TIME_DELAY_FOR_DIRECTION_CHANGE": Time post call after which bat makes a movement decision (s). Information collected during this time is used to make the decision, depending on controller of choice. 
+1. "CONSISTENCY_TIME_DELAY_CAP": Time post call after which bat makes a movement decision (s). Information collected during this time is used to make the decision, depending on controller of choice. 
 2. "INCLUDE_DIRECT_SOUNDS_IN_RESPONSE":  Yes to include direct sounds in response, else false (Bool). Bats might be capable of telling apart, from the spectral properties, direct sounds of other bats from echoes.
 3. "TIME_DELAY_THRESHOLD_FOR_REPULSION":  The maximum delay after call emission a response inducing sound can have in order to elicit a repulsion response in bat (s).
 

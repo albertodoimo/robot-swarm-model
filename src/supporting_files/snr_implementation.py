@@ -1,6 +1,7 @@
 # you have a list of sound objects
 # first filtering is include direct sounds or not
 import numpy as np
+
 from supporting_files.utilities import change_tuples_to_vector_in_sound
 
 
@@ -348,7 +349,7 @@ def get_temporal_masking_function_based_on_sound(
         elif time_step < -duration_of_sound:
             subset_timegap_bin = time_step + duration_of_sound
         else:
-            raise ValueError
+            raise ValueError("SNR problem")
 
         timegaps = temporal_masking_df["timegap_ms"]
         mask = (subset_timegap_bin <= timegaps) & (

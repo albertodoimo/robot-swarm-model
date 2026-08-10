@@ -61,7 +61,7 @@ def convert_detected_sounds_into_grids_loudest_sound(
     store_grid_sum = matrix_spatial_grid.copy()
 
     if len(heard_sounds) == 0:
-        return store_grid_sum
+        return store_grid_sum, spatial_grid_theta
 
     for sound_object in heard_sounds:
 
@@ -91,7 +91,55 @@ def convert_detected_sounds_into_grids_loudest_sound(
         # print(f"max db in cells : {store_grid}")
         # print(f"sum of db in cells : {store_grid_sum}")
 
-    return store_grid_sum
+    return store_grid, spatial_grid_theta
+
+
+def given_matrix_find_cell_to_respond_to_loudest_sound(matrix, parameters_df):
+    matrix = np.matrix(matrix)
+    # print(matrix)
+    loudest_cell = np.argmax(matrix)
+    output_cell_number = (0, loudest_cell)
+    intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
+    # print(matrix[output_cell_number])
+    if matrix[output_cell_number] < intensity_threshold_for_attraction:
+        output_cell_number = [np.nan, np.nan]
+    return output_cell_number
+
+
+def given_time_and_angle_return_direction_loudest_sound(
+    intensity,
+    angle_of_activated_cell,
+    parameters_df,
+    bat_direction,
+    allocentric_axis_y,
+):
+    spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
+
+    angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
+
+    noise_in_angle = np.random.uniform(-angular_resolution / 2, angular_resolution / 2)
+    angle_of_next_direction = (
+        angle_of_activated_cell - angular_resolution / 2 + noise_in_angle
+    )
+    intensity_threshold_for_repulsion = parameters_df["SPL_THRESHOLD_FOR_REPULSION"]
+    intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
+
+    if spatial_reference_frame == "allocentric":
+        angle_between_self_and_allocentric_axis = bat_direction.angle_between(
+            allocentric_axis_y
+        )
+        angle_of_next_direction += angle_between_self_and_allocentric_axis
+
+    if intensity >= intensity_threshold_for_repulsion:
+        angle_of_next_direction += np.pi
+        response_type = "repulsion"
+    else:  # intensity >= intensity_threshold_for_attraction
+        # print(f"attraction delay{corrected_time_delay}")
+        response_type = "attraction"
+
+    next_direction = bat_direction.rotate(angle_of_next_direction)
+
+    return next_direction.normalize(), response_type
 
 
 if __name__ == "__main__":
@@ -100,4 +148,6 @@ if __name__ == "__main__":
         "CALL_DURATION": 2,
     }
     X, Y = generate_empty_matrix(parameters_df=dict_params)
-    print(X[0, 0])
+    Z = np.matrix([[0, 1, 2, 1]])
+    print(np.argmin(X))
+    print(np.argmax(Z), Z[0, np.argmax(Z)])

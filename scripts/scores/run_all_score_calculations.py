@@ -1,8 +1,12 @@
 import glob
 import os
+import sys
 
 import numpy as np
 import pandas as pd
+
+sys.path.append("./scripts/")
+
 from scores.calling_effort_score import calling_effort
 from scores.collision_scores_single_bat import (
     compute_collision_counts_and_length,

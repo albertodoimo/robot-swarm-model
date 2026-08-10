@@ -1,6 +1,7 @@
 import bisect
 
 import numpy as np
+
 from supporting_files.utilities import str2bool
 
 
@@ -28,7 +29,7 @@ def given_parameters_df_return_grid_matrix_zeros(parameters_df):
     radial_resolution = parameters_df["BAT_RADIAL_RESOLUTION"]
     angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
     call_duration = parameters_df["CALL_DURATION"]
-    post_call_sampling_interval = parameters_df["TIME_DELAY_FOR_DIRECTION_CHANGE"]
+    post_call_sampling_interval = parameters_df["CONSISTENCY_TIME_DELAY_CAP"]
 
     spatial_grid_r = np.arange(
         call_duration,
