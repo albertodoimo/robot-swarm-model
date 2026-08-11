@@ -33,6 +33,16 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
     )
     self.memory_window_to_store_grids.append(grid_for_current_ipi)
 
+    # TODO : min delay implementation for slowing down
+    min_delay = np.inf
+    for sound_object in detected_sound_objects:
+        delta_t = (
+            np.array(sound_object["occurance_times"])[0]
+            - sound_object["bat_last_call_time"]
+        )
+        min_delay = min(min_delay, delta_t)
+    self.first_detection_time_delay = min_delay
+
     # TODO : sensory volume stuff
 
     # self.ipi_matrix_for_sensory_volume = (

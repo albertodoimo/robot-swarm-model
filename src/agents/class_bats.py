@@ -72,7 +72,7 @@ class Bat:
 
         self.response_type = None
         self.cell_index_to_respond_to = [np.nan, np.nan]
-
+        self.first_detection_time_delay = np.nan
         self.ipi_matrix_for_consistency = given_parameters_df_return_grid_matrix_zeros(
             self.parameters_df
         )[0]
@@ -440,7 +440,7 @@ class Bat:
 
             self.list_to_store_sounds.extend(heard_sounds)
 
-            self.modulate_speed_call_rate()
+            self.modulate_call_rate()
 
             self.next_direction, self.response_type = self.decide_next_direction(
                 heard_sounds
@@ -539,15 +539,9 @@ class Bat:
             if self.response_type == "attraction":
                 self.speed = self.parameters_df["BAT_FAST_SPEED"]
 
-        rotation_speed = np.radians(self.parameters_df["BAT_ROTATION_SPEED"])
-        rotation_speed_scaled_by_time_step = (
-            rotation_speed * self.parameters_df["TIME_STEP"]
-        )
-        self.rotate_towards_given_degree(
-            self.next_direction, rotation_speed_scaled_by_time_step
-        )
+        self.rotate_towards_given_degree(self.next_direction)
 
-    def rotate_towards_given_degree(self, new_direction, rotation_rate):
+    def rotate_towards_given_degree(self, new_direction):
         """slowly rotate towards the new_direction from current_direction
 
         Args:
@@ -556,6 +550,13 @@ class Bat:
         """
 
         current_direction = self.direction
+
+        rotation_speed = np.radians(self.parameters_df["BAT_ROTATION_SPEED"])
+        rotation_rate = rotation_speed * self.parameters_df["TIME_STEP"]
+        
+        if not np.isnan(self.first_detection_time_delay):
+             
+
         if current_direction != new_direction:
             angle_between_current_and_new = current_direction.angle_between(
                 new_direction
@@ -571,7 +572,7 @@ class Bat:
             rotated_vector = current_direction.rotate(rotation_angle)
             self.direction = rotated_vector.normalize()
 
-    def modulate_speed_call_rate(self):
+    def modulate_call_rate(self):
         """Change call rate and speed if conditions are met."""
         if self.any_consistent_sound == "no":
             self.speed = self.parameters_df["BAT_FAST_SPEED"]
