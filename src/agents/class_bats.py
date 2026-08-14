@@ -57,6 +57,7 @@ class Bat:
 
         self.speed = self.parameters_df["BAT_FAST_SPEED"]  # initial speed
         self.radius = self.parameters_df["BAT_RADIUS"]  # bat radius
+        self.rotation_speed = self.parameters_df["BAT_ROTATION_SPEED"]
 
         self.detections_for_direction_change_consistency = []  # initiate detection list
         self.detections_for_direction_change_loudness = []
@@ -392,6 +393,8 @@ class Bat:
             "LOUDNESS_TIME_DELAY_CAP"
         ]
 
+        # TODO : CHANGES FOR TEST!!!
+        # if self.id == 0:
         self.detections_for_direction_change_consistency.extend(
             self.given_sound_objects_return_sounds_at_bat_position(
                 current_time, sound_objects
@@ -407,6 +410,10 @@ class Bat:
             > direction_change_time_interval_using_consistency
         )
         # print(self.detections_for_direction_change_consistency)
+
+        # if self.id != 0:
+        #     self.detections_for_direction_change_consistency = []
+        #     self.detections_for_direction_change_loudness = []
 
         if (
             self.time_since_direction_change_using_consistency
@@ -453,6 +460,7 @@ class Bat:
 
             # NOTE
             self.detections_for_direction_change_consistency = []
+            self.detections_for_direction_change_loudness = []
 
         elif (
             self.time_since_direction_change_using_consistency
@@ -464,6 +472,9 @@ class Bat:
                 given_parameters_df_return_grid_matrix_zeros(self.parameters_df)[0]
             )
             self.memory_window_sum_matrix = self.ipi_matrix_for_consistency.copy()
+            self.any_consistent_sound = "no"
+            # print("nothing being heard in consistnecy range")
+            self.detections_for_direction_change_loudness = []
 
         # TODO: NEW STUFF REGARDING LOUDNESS
 
@@ -551,11 +562,20 @@ class Bat:
 
         current_direction = self.direction
 
-        rotation_speed = np.radians(self.parameters_df["BAT_ROTATION_SPEED"])
-        rotation_rate = rotation_speed * self.parameters_df["TIME_STEP"]
-        
-        if not np.isnan(self.first_detection_time_delay):
-             
+        # if not np.isnan(self.first_detection_time_delay):
+        #     # use a function to change speed
+        #     self.speed = 0.25 * self.first_detection_time_delay * 1000
+        #     # self.rotation_speed = np.min(-216 * self.speed + 1008, 0)
+        #     print(
+        #         f"time_delay : {self.first_detection_time_delay}, speed : {self.speed}, rotation_speed : {self.rotation_speed}"
+        #     )
+        # else:
+        self.speed = self.parameters_df["BAT_SPEED"]
+        self.rotation_speed = self.parameters_df["BAT_ROTATION_SPEED"]
+
+        rotation_rate = (
+            np.radians(self.rotation_speed) * self.parameters_df["TIME_STEP"]
+        )
 
         if current_direction != new_direction:
             angle_between_current_and_new = current_direction.angle_between(
@@ -578,7 +598,7 @@ class Bat:
             self.speed = self.parameters_df["BAT_FAST_SPEED"]
             self.call_rate = self.parameters_df["CALL_RATE_FAST"]
         else:
-            self.speed = self.parameters_df["BAT_SPEED"]
+            # self.speed = self.parameters_df["BAT_SPEED"]
             self.call_rate = self.parameters_df["CALL_RATE"]
 
     def __repr__(self):

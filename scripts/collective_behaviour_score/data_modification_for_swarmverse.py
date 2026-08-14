@@ -31,6 +31,6 @@ def load_and_convert_files(folder_dir, resolution):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = "./data/raw/attraction_loudest_sound/sustained_sounds/20_bats/2/"
+    OUTPUT_DIR = "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/working_attraction_model/6_control/"
     df = load_and_convert_files(OUTPUT_DIR, 10)
-    df.to_csv(OUTPUT_DIR + "/swarmverse_data_2.csv")
+    df.to_csv(OUTPUT_DIR + "/swarmverse_data_14_08_control.csv")

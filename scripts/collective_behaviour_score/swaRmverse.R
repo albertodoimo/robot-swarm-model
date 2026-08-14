@@ -96,23 +96,23 @@ calculate_scores <- function(directory){
                                   geo = is_geo,
                                   parallelize = FALSE
   )
-  # data_df <- pairwise_metrics(data_list = data_dfs,
-  #                             geo = is_geo,
-  #                             verbose = TRUE,
-  #                             parallelize = FALSE,
-  #                             add_coords = FALSE # could be set to TRUE if the relative positions of neighbors are needed 
-  # )
-  return(g_metr)
+  data_df <- pairwise_metrics(data_list = data_dfs,
+                             geo = is_geo,
+                             verbose = TRUE,
+                             parallelize = FALSE,
+                             add_coords = FALSE # could be set to TRUE if the relative positions of neighbors are needed 
+  )
+  return(data_df)
   
 }
 
-control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/attraction_loudest_sound/sustained_sounds/20_bats/2_control/swarmverse_data_control_2.csv"
-treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/attraction_loudest_sound/sustained_sounds/20_bats/2/swarmverse_data_2.csv"
+control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/working_attraction_model/6_control/swarmverse_data_14_08_control.csv"
+treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/working_attraction_model/6/swarmverse_data_14_08_treatment.csv"
 
 g_metr_control <- calculate_scores(control_dir)
 g_metr_treatment <- calculate_scores(treatment_dir)
 
-p <- ggplot() + geom_line(data=g_metr_treatment, aes(x=t, y=pol), color= "red") + 
-  geom_line(data=g_metr_control, aes(x=t, y=pol), color = "blue")
+p <- ggplot() + geom_line(data=g_metr_treatment, aes(x=t, y=nnd, z=id), color= "red") + 
+  geom_line(data=g_metr_control, aes(x=t, y=nnd, z=id), color = "blue")
 
 p

@@ -50,7 +50,18 @@ class Simulation:
             Bat(self.parameters_df, self.output_dir)
             for _ in range(int(self.parameters_df["NUM_BATS"]))
         ]
-        self.bats[0].allocentric_axis_y = Vector(0, 1)
+
+        self.bats[0].allocentric_axis_y = Vector(-1, np.sqrt(3))
+
+        # for i in range(1, len(self.bats)):
+        #     self.bats[i].parameters_df["BAT_SPEED"] = 0
+        #     self.bats[i].parameters_df["BAT_SPEED_FAST"] = 0
+        #     self.bats[i].position = Vector(
+        #         self.parameters_df["ARENA_WIDTH"] / 2
+        #         + (0.1 * (i - len(self.bats) / 2)),
+        #         self.parameters_df["ARENA_LENGTH"] / 2,
+        #     )
+
         obstacle_position = "random"
         obstacle_radius = self.parameters_df["OBSTACLE_RADIUS"]
         self.obstacles = [
@@ -384,7 +395,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/swarm_tests/3_bats/9/"
+    OUTPUT_DIR = r"./data/raw/working_attraction_model/7/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)
@@ -395,7 +406,7 @@ if __name__ == "__main__":
         output_dir=OUTPUT_DIR,
         save_animation=True,
         unique_id=unique_id,
-        resolution=30,
+        resolution=50,
         show_sounds=False,
         focal_bat=0,
     )

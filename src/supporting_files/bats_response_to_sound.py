@@ -33,16 +33,6 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
     )
     self.memory_window_to_store_grids.append(grid_for_current_ipi)
 
-    # TODO : min delay implementation for slowing down
-    min_delay = np.inf
-    for sound_object in detected_sound_objects:
-        delta_t = (
-            np.array(sound_object["occurance_times"])[0]
-            - sound_object["bat_last_call_time"]
-        )
-        min_delay = min(min_delay, delta_t)
-    self.first_detection_time_delay = min_delay
-
     # TODO : sensory volume stuff
 
     # self.ipi_matrix_for_sensory_volume = (
@@ -82,6 +72,7 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
         next_direction = self.direction
         response_type = None
         self.any_consistent_sound = "no"
+        time_delay_of_activated_cell = np.nan
 
     else:
         time_delay_of_activated_cell = grid_row_labels[cell_index_to_respond_to[0]]
@@ -94,6 +85,19 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
             self.allocentric_axis_y,
         )
         self.any_consistent_sound = "yes"
+
+    # # TODO : min delay implementation for slowing down
+    # min_delay = np.inf
+    # for sound_object in detected_sound_objects:
+    #     delta_t = (
+    #         np.array(sound_object["occurance_times"])[0]
+    #         - sound_object["bat_last_call_time"]
+    #     )
+    #     min_delay = min(min_delay, delta_t)
+    #     print(min_delay, delta_t)
+    # if min_delay == np.inf:
+    #     min_delay = np.nan
+    self.first_detection_time_delay = time_delay_of_activated_cell
 
     return next_direction.normalize(), response_type
 
@@ -138,7 +142,7 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
                 self.allocentric_axis_y,
             )
         )
-        self.any_lous_sound = "yes"
+        self.any_loud_sound = "yes"
         print(next_direction.normalize(), angle_of_activated_cell, intensity_of_sound)
 
     self.ipi_matrix_for_sensory_volume = self.ipi_matrix_for_sensory_volume[0]

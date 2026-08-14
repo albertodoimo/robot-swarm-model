@@ -168,6 +168,15 @@ def find_sum_of_db(list_of_spls, sim_rounding):
 
 
 def sound_within_time_interval(sound, global_time_interval):
+    """check if a given sound in inside the time interval of interest
+
+    Args:
+        sound (dict): sound object serialized
+        global_time_interval (list): starting and ending time of the time interval
+
+    Returns:
+        bool: true if sound inside the time interval else false
+    """
     is_sound_inside_time_interval = False
     if (
         sound["time"] >= global_time_interval[0]
