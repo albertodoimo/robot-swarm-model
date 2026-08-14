@@ -53,7 +53,7 @@ class Simulation:
 
         self.bats[0].allocentric_axis_y = Vector(-1, np.sqrt(3))
 
-        # for i in range(1, len(self.bats)):
+        # for i in range(10, len(self.bats)):
         #     self.bats[i].parameters_df["BAT_SPEED"] = 0
         #     self.bats[i].parameters_df["BAT_SPEED_FAST"] = 0
         #     self.bats[i].position = Vector(
@@ -395,7 +395,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/working_attraction_model/7/"
+    OUTPUT_DIR = r"./data/raw/low_attraction_threshold/1/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)

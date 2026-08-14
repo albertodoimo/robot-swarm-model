@@ -394,17 +394,17 @@ class Bat:
         ]
 
         # TODO : CHANGES FOR TEST!!!
-        # if self.id == 0:
-        self.detections_for_direction_change_consistency.extend(
-            self.given_sound_objects_return_sounds_at_bat_position(
-                current_time, sound_objects
+        if self.id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+            self.detections_for_direction_change_consistency.extend(
+                self.given_sound_objects_return_sounds_at_bat_position(
+                    current_time, sound_objects
+                )
             )
-        )
-        self.detections_for_direction_change_loudness.extend(
-            self.given_sound_objects_return_sounds_at_bat_position(
-                current_time, sound_objects
+            self.detections_for_direction_change_loudness.extend(
+                self.given_sound_objects_return_sounds_at_bat_position(
+                    current_time, sound_objects
+                )
             )
-        )
         use_loudness_attraction = (
             direction_change_time_interval_using_loudness
             > direction_change_time_interval_using_consistency
