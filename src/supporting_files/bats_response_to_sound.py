@@ -69,7 +69,7 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
 
     self.cell_index_to_respond_to = cell_index_to_respond_to
     if np.isnan(cell_index_to_respond_to[0]):
-        next_direction = self.direction
+        next_direction = self.next_direction
         response_type = None
         self.any_consistent_sound = "no"
         time_delay_of_activated_cell = np.nan
@@ -117,15 +117,19 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
             self.allocentric_axis_y,
         )
     )
-    # print(self.ipi_matrix_for_sensory_volume)
+
     cell_index_to_respond_to = given_matrix_find_cell_to_respond_to_loudest_sound(
-        self.ipi_matrix_for_sensory_volume, self.parameters_df
+        self.ipi_matrix_for_sensory_volume,
+        self.parameters_df,
+        self.direction,
+        self.allocentric_axis_y,
+        self.id,
     )
 
     self.cell_index_to_respond_to = cell_index_to_respond_to
     if np.isnan(cell_index_to_respond_to[0]):
         next_direction = self.next_direction
-        response_type = self.response_type
+        response_type = None
         self.any_loud_sound = "no"
 
     else:
@@ -143,7 +147,7 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
             )
         )
         self.any_loud_sound = "yes"
-        print(next_direction.normalize(), angle_of_activated_cell, intensity_of_sound)
+        # print(next_direction.normalize(), angle_of_activated_cell, intensity_of_sound)
 
     self.ipi_matrix_for_sensory_volume = self.ipi_matrix_for_sensory_volume[0]
     return next_direction.normalize(), response_type

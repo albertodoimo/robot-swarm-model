@@ -53,7 +53,14 @@ class Simulation:
 
         self.bats[0].allocentric_axis_y = Vector(-1, np.sqrt(3))
 
-        # for i in range(10, len(self.bats)):
+        # for i, bat in enumerate(self.bats):
+        #     bat.position = Vector(
+        #         0.1,
+        #         self.parameters_df["ARENA_LENGTH"] / 2
+        #         + (0.1 * (i - len(self.bats) / 2) * (i % 2 - (1 / 2))),
+        #     )
+        #     bat.direction = Vector(1, 0)
+        # for i in range(1, len(self.bats)):
         #     self.bats[i].parameters_df["BAT_SPEED"] = 0
         #     self.bats[i].parameters_df["BAT_SPEED_FAST"] = 0
         #     self.bats[i].position = Vector(
@@ -148,7 +155,7 @@ class Simulation:
             save_time_of_last_iter = current_loop_time
 
             if self.store_history:
-                # self.handle_data_storage_for_plotting(self.time_elapsed, False)
+                self.handle_data_storage_for_plotting(self.time_elapsed, False)
                 self.handle_data_storage_for_plotting_pickle(self.time_elapsed, False)
             # except BaseException:
             #     print("Unexpected error:", sys.exc_info()[0])
@@ -158,7 +165,7 @@ class Simulation:
             #     break
 
         if self.store_history:
-            # self.handle_data_storage_for_plotting(self.time_elapsed, True)
+            self.handle_data_storage_for_plotting(self.time_elapsed, True)
             self.handle_data_storage_for_plotting_pickle(self.time_elapsed, True)
 
         print(self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"])
@@ -395,7 +402,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/low_attraction_threshold/1/"
+    OUTPUT_DIR = r"./data/raw/testing_group_dynamics/5_control/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)

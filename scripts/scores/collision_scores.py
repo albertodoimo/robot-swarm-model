@@ -42,8 +42,8 @@ def compute_collision_counts_and_length(bat_positions, parameters_df):
     # duration_tracker = np.zeros(shape=(len(bat_positions), len(bat_positions)))
 
     for position_frame in bat_positions:
+        # print(position_frame)
         distance_matrix = scp.spatial.distance_matrix(position_frame, position_frame)
-
         track_collision_in_current_frame_w_bats = []
         track_collision_in_current_frame_w_walls = []
 
@@ -99,3 +99,6 @@ def time_spent_in_collision(bat_positions, parameters_df):
             collision_list.append(0)
 
     return collision_list, np.sum(collision_list)
+
+
+# if __name__ == "__main__":

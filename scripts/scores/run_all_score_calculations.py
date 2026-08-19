@@ -62,8 +62,8 @@ def load_history_dump(folder_path):
             all_frames.append(
                 {
                     "time": np.round(frame_time, 3),
-                    "bat_positions_x": bat_positions[:, 0],
-                    "bat_positions_y": bat_positions[:, 1],
+                    "bat_positions": bat_positions[:],
+                    # "bat_positions_y": bat_positions[:, 1],
                     # "bat_call_time": bat_call_time
                 }
             )

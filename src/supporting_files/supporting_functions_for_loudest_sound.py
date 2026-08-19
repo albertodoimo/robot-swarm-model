@@ -50,6 +50,73 @@ def generate_empty_matrix(parameters_df):
     return matrix_spatial_grid, spatial_grid_theta
 
 
+# TODO : stuff copied from the consistency functions file, make a general function instead of copy pasting the same functions
+
+
+def convert_angles_to_negpi_to_pi(list_of_angles):
+    new_list = []
+    for angle in list_of_angles:
+        if angle > np.pi or angle < -np.pi:
+            opposite_sign = np.sign(angle) * -1
+            converted_angle = angle % (opposite_sign * np.pi)
+        else:
+            converted_angle = angle
+        new_list.append(converted_angle)
+    return np.array(new_list)
+
+
+def find_indices_corresponding_to_hearing_range(
+    parameters_df,
+    spatial_grid_theta,
+    angle_between_reference_axis_and_bat,
+    hearing_range,
+):
+    bat_angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
+
+    # print(hearing_range, angle_between_reference_axis_and_bat)
+    angles_to_hearing_range = np.arange(
+        -hearing_range + angle_between_reference_axis_and_bat,
+        hearing_range
+        + angle_between_reference_axis_and_bat
+        + bat_angular_resolution / 2,
+        bat_angular_resolution,
+    )
+    angles_to_hearing_range = convert_angles_to_negpi_to_pi(angles_to_hearing_range)
+    indices_corresponding_to_hearing_range = [
+        bisect.bisect_left(spatial_grid_theta, i) for i in angles_to_hearing_range
+    ]
+    indices_corresponding_to_hearing_range = [
+        i if i != len(spatial_grid_theta) else 0
+        for i in indices_corresponding_to_hearing_range
+    ]
+    # print(f"angles in hearing range {np.degrees(np.array(angles_to_hearing_range))}")
+    return indices_corresponding_to_hearing_range
+
+
+def modify_matrix_based_on_hearing_range(
+    matrix,
+    angle_between_reference_axis_and_bat,
+    parameters_df,
+    angle_threshold,
+):
+    angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
+    spatial_grid_theta = np.arange(-np.pi, np.pi, angular_resolution)
+
+    hearing_range = np.radians(angle_threshold)
+    hearing_range_indices = find_indices_corresponding_to_hearing_range(
+        parameters_df,
+        spatial_grid_theta,
+        angle_between_reference_axis_and_bat,
+        hearing_range,
+    )
+
+    matrix_based_on_hearing_range = np.zeros(shape=matrix.shape)
+    for index in hearing_range_indices:
+        matrix_based_on_hearing_range[(0, index)] = matrix[(0, index)]
+
+    return matrix_based_on_hearing_range, np.array(hearing_range_indices)
+
+
 def convert_detected_sounds_into_grids_loudest_sound(
     heard_sounds, parameters_df, bat_direction, allocentric_axis_y
 ):
@@ -94,15 +161,79 @@ def convert_detected_sounds_into_grids_loudest_sound(
     return store_grid, spatial_grid_theta
 
 
-def given_matrix_find_cell_to_respond_to_loudest_sound(matrix, parameters_df):
+def given_matrix_find_cell_to_respond_to_loudest_sound(
+    matrix, parameters_df, bat_direction, allocentric_axis_y, id
+):
     matrix = np.matrix(matrix)
     # print(matrix)
-    loudest_cell = np.argmax(matrix)
-    output_cell_number = (0, loudest_cell)
+    angle_between_reference_axis_and_bat = allocentric_axis_y.angle_between(
+        bat_direction
+    )
+
+    # TODO : implementation to incorporate limited range for attraction and repulsion
+    # TODO : add variable range for attraction and repulsion ig? if you dont
+
+    matrix_based_on_attraction_range, attraction_range_indices = (
+        modify_matrix_based_on_hearing_range(
+            matrix,
+            angle_between_reference_axis_and_bat,
+            parameters_df,
+            angle_threshold=parameters_df["ANGLE_RANGE_FOR_ATTRACTION"],
+        )
+    )
+
+    matrix_based_on_repulsion_range, repulsion_range_indices = (
+        modify_matrix_based_on_hearing_range(
+            matrix,
+            angle_between_reference_axis_and_bat,
+            parameters_df,
+            angle_threshold=parameters_df["ANGLE_RANGE_FOR_REPULSION"],
+        )
+    )
+
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
+    intensity_threshold_for_repulsion = parameters_df["SPL_THRESHOLD_FOR_REPULSION"]
+
+    # check if repulsion criteria met?
+    loudest_intensity_in_repulsion_matrix = np.max(matrix_based_on_repulsion_range)
+    is_bat_doing_repulsion = (
+        loudest_intensity_in_repulsion_matrix > intensity_threshold_for_repulsion
+    )
+
+    loudest_intensity_in_attraction_matrix = np.max(matrix_based_on_attraction_range)
+    is_bat_doing_attraction = (
+        loudest_intensity_in_attraction_matrix > intensity_threshold_for_attraction
+    )
+
+    if is_bat_doing_repulsion:
+        loudest_cell_in_repulsion_matrix = np.argmax(matrix_based_on_repulsion_range)
+        output_cell_number = (0, loudest_cell_in_repulsion_matrix)
+    elif is_bat_doing_attraction:
+        loudest_cell_in_attraction_matrix = np.argmax(matrix_based_on_attraction_range)
+        output_cell_number = (0, loudest_cell_in_attraction_matrix)
+    elif not (is_bat_doing_repulsion or is_bat_doing_attraction):
+        output_cell_number = (np.nan, np.nan)
+    else:
+        print(is_bat_doing_repulsion, is_bat_doing_attraction)
+        raise ValueError(
+            "the agent is attracting and repelling at the same time! impossible!!!"
+        )
+    # loudest_cell = np.argmax(matrix)
+    # output_cell_number = (0, loudest_cell)
+
     # print(matrix[output_cell_number])
-    if matrix[output_cell_number] < intensity_threshold_for_attraction:
-        output_cell_number = [np.nan, np.nan]
+    # if matrix[output_cell_number] < intensity_threshold_for_attraction:
+    #     output_cell_number = [np.nan, np.nan]
+
+    if id == 0:
+        print(
+            f"attraction? {is_bat_doing_attraction} repulsion? {is_bat_doing_repulsion}"
+        )
+        print(
+            f"loudest intensity attract {loudest_intensity_in_attraction_matrix}, repel {loudest_intensity_in_repulsion_matrix}"
+        )
+        print(f"output {output_cell_number}")
+
     return output_cell_number
 
 
@@ -130,12 +261,16 @@ def given_time_and_angle_return_direction_loudest_sound(
         )
         angle_of_next_direction += angle_between_self_and_allocentric_axis
 
-    if intensity >= intensity_threshold_for_repulsion:
+    if intensity > intensity_threshold_for_repulsion:
         angle_of_next_direction += np.pi
-        response_type = "repulsion"
-    else:  # intensity >= intensity_threshold_for_attraction
+        response_type = "repulsion_passive"
+    elif intensity > intensity_threshold_for_attraction:
         # print(f"attraction delay{corrected_time_delay}")
-        response_type = "attraction"
+        response_type = "attraction_passive"
+    else:
+        raise ValueError(
+            "This condition should never occur as no response is thrown out earlier."
+        )
 
     next_direction = bat_direction.rotate(angle_of_next_direction)
 

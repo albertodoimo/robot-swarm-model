@@ -70,11 +70,11 @@ calculate_scores <- function(directory){
   
   data_df <- set_data_format(raw_x = raw$x,
                              raw_y = raw$y, 
-                             raw_t=raw$frame, 
-                             raw_id=raw$id, 
+                             raw_t = raw$frame, 
+                             raw_id = raw$id, 
                              origin = "2026-08-3 12:00:21", 
                              period = "0.01S", 
-                             tz= "America/New_York")
+                             tz = "America/New_York")
   
   is_geo <- FALSE
   
@@ -96,23 +96,57 @@ calculate_scores <- function(directory){
                                   geo = is_geo,
                                   parallelize = FALSE
   )
-  data_df <- pairwise_metrics(data_list = data_dfs,
-                             geo = is_geo,
-                             verbose = TRUE,
-                             parallelize = FALSE,
-                             add_coords = FALSE # could be set to TRUE if the relative positions of neighbors are needed 
+  
+  pairwise_df <- pairwise_metrics(data_list = data_dfs,
+                                  geo = is_geo,
+                                  verbose = TRUE,
+                                  parallelize = FALSE,
+                                  add_coords = FALSE # could be set to TRUE if the relative positions of neighbors are needed 
   )
-  return(data_df)
+  
+  # Return both outputs as a named list
+  return(list(g_metr = g_metr, data_df = pairwise_df))
   
 }
 
-control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/working_attraction_model/6_control/swarmverse_data_14_08_control.csv"
-treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/working_attraction_model/6/swarmverse_data_14_08_treatment.csv"
+control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/testing_group_dynamics/4_control/swarmverse_data_19_08_control.csv"
+treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/testing_group_dynamics/4/swarmverse_data_19_08.csv"
 
-g_metr_control <- calculate_scores(control_dir)
-g_metr_treatment <- calculate_scores(treatment_dir)
+# Run calculations for each input
+results_control <- calculate_scores(control_dir)
+results_treatment <- calculate_scores(treatment_dir)
 
-p <- ggplot() + geom_line(data=g_metr_treatment, aes(x=t, y=nnd, z=id), color= "red") + 
-  geom_line(data=g_metr_control, aes(x=t, y=nnd, z=id), color = "blue")
+# Unpack into separate named variables
+g_metr_control   <- results_control$g_metr
+data_df_control  <- results_control$data_df
+
+g_metr_treatment  <- results_treatment$g_metr
+data_df_treatment <- results_treatment$data_df
+
+# Plot using g_metr (group metrics)
+p <- ggplot() + 
+  geom_line(data = g_metr_treatment, aes(x = t, y = pol), color = "red") + 
+  geom_line(data = g_metr_control, aes(x = t, y = pol), color = "blue")
 
 p
+
+g_metr_control$condition <- "Control"
+g_metr_treatment$condition <- "Treatment"
+
+# Combine both datasets into one dataframe for easy plotting
+combined_g_metr <- rbind(g_metr_control, g_metr_treatment)
+
+# Create the box plot
+p_box <- ggplot(combined_g_metr, aes(x = condition, y = pol, fill = condition)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("Control" = "blue", "Treatment" = "red")) +
+  labs(title = "Nearest Neighbor Distance (NND) Comparison",
+       x = "Condition",
+       y = "pol") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p_box
+
+write.csv(g_metr_control, file = "/home/adityamoger/Documents/GitHub/bat-swarm-model/scripts/collective_behaviour_score/control_14_08.csv") 
+write.csv(g_metr_treatment, file = "/home/adityamoger/Documents/GitHub/bat-swarm-model/scripts/collective_behaviour_score/treatment_14_08.csv") 

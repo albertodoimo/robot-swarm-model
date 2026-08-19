@@ -445,8 +445,12 @@ def visualize(
                     fcolor = "black"
                 elif frame["response_type"][j] == "attraction":
                     fcolor = "white"
+                elif frame["response_type"][j] == "attraction_passive":
+                    fcolor = "cyan"
+                elif frame["response_type"][j] == "repulsion_passive":
+                    fcolor = "purple"
                 else:
-                    fcolor = "grey"
+                    fcolor = cm(j / num_colors)
                 next_direction_arrows[j].set_data(
                     x=x, y=y, dx=dx * scale, dy=dy * scale
                 )

@@ -167,7 +167,7 @@ class Bat:
             sound_objects.append(sound)
 
             # make the bat stop executing its previous movement
-            self.next_direction = self.direction
+            # self.next_direction = self.direction
 
             # start the timer for direction change
             self.time_since_direction_change_using_consistency = 0
@@ -223,6 +223,10 @@ class Bat:
             "theta": np.degrees(
                 self.allocentric_axis_y.angle_between(incident_direction)
             ),
+            "angle_wrt_bat": np.degrees(
+                self.direction.angle_between(incident_direction)
+            ),
+            "delay": current_time - self.emit_times[-1],
         }
         return dictionary
 
@@ -394,17 +398,19 @@ class Bat:
         ]
 
         # TODO : CHANGES FOR TEST!!!
-        if self.id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
-            self.detections_for_direction_change_consistency.extend(
-                self.given_sound_objects_return_sounds_at_bat_position(
-                    current_time, sound_objects
-                )
+        # if self.id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+
+        self.detections_for_direction_change_consistency.extend(
+            self.given_sound_objects_return_sounds_at_bat_position(
+                current_time, sound_objects
             )
-            self.detections_for_direction_change_loudness.extend(
-                self.given_sound_objects_return_sounds_at_bat_position(
-                    current_time, sound_objects
-                )
+        )
+        self.detections_for_direction_change_loudness.extend(
+            self.given_sound_objects_return_sounds_at_bat_position(
+                current_time, sound_objects
             )
+        )
+
         use_loudness_attraction = (
             direction_change_time_interval_using_loudness
             > direction_change_time_interval_using_consistency
@@ -493,11 +499,13 @@ class Bat:
                 )
             if self.id == 0:
                 direct_calls = [
-                    i
+                    f"emmiter {i["emitter_id"]}, spl {i["received_spl"]}, angle {i["angle_wrt_bat"]}, delay {i["delay"]}"
                     for i in self.detections_for_direction_change_loudness
-                    if i["type"] == "direct_sound"
+                    if i["type"] == "direct"
                 ]
-                print(direct_calls)
+                print(
+                    f"direct calls : {direct_calls}, nuimber of direct calls {len(direct_calls)}"
+                )
 
             if implement_snr:
                 heard_sounds = given_sound_objects_return_detected_sounds(
@@ -527,12 +535,12 @@ class Bat:
 
             #     heard_sounds.extend(past_detections)
 
-            if self.id == 0:
-                for i, past_detections in enumerate(
-                    self.track_sounds_for_sustained_sounds
-                ):
-                    print(f"past detection number {i}, length {len(past_detections)}")
-                print(len(heard_sounds), len(self.track_sounds_for_sustained_sounds))
+            # if self.id == 0:
+            #     for i, past_detections in enumerate(
+            #         self.track_sounds_for_sustained_sounds
+            #     ):
+            #         print(f"past detection number {i}, length {len(past_detections)}")
+            #     print(len(heard_sounds), len(self.track_sounds_for_sustained_sounds))
 
             heard_sounds_w_past_detections = []
             for i, past_detections in enumerate(self.track_sounds_for_sustained_sounds):
@@ -544,15 +552,18 @@ class Bat:
                 )
             )
 
+            print(
+                f"response : {self.response_type}, angle to next direction : {np.degrees(self.direction.angle_between(self.next_direction))}"
+                if self.id == 0
+                else ""
+            )
+
             self.detections_for_direction_change_loudness = []
             self.time_since_direction_change_using_loudness = -np.inf
 
-            if self.response_type == "attraction":
-                self.speed = self.parameters_df["BAT_FAST_SPEED"]
+        self.rotate_towards_given_degree(self.next_direction, current_time)
 
-        self.rotate_towards_given_degree(self.next_direction)
-
-    def rotate_towards_given_degree(self, new_direction):
+    def rotate_towards_given_degree(self, new_direction, current_time):
         """slowly rotate towards the new_direction from current_direction
 
         Args:
@@ -576,8 +587,11 @@ class Bat:
         rotation_rate = (
             np.radians(self.rotation_speed) * self.parameters_df["TIME_STEP"]
         )
+        rotation_time_delay = self.parameters_df["ROTATION_TIME_DELAY_CAP"]
 
-        if current_direction != new_direction:
+        is_bat_processing = (current_time - self.emit_times[-1]) < rotation_time_delay
+
+        if current_direction != new_direction and not is_bat_processing:
             angle_between_current_and_new = current_direction.angle_between(
                 new_direction
             )
