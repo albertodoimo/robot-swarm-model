@@ -55,5 +55,5 @@ Parameters crucial for the simulation are described in this file. Details about 
 1. "BAT_RADIAL_RESOLUTION": Minimum time difference between two sounds needed for the bat to perceive them as two different sounds (s). 
 2. "BAT_ANGULAR_RESOLUTION": Minimum angular separation between two sounds needed for the bat to perceive them as two different sounds (degrees).
 3. "MEMORY_WINDOW_FOR_CONSISTENCY": Number of calls over which movement decision is integrated over. Think of this as a moving window, i.e., if the value of this parameter was x, decision after the i-th call occurs after integrating information obtained from (i-x)-th call to i-th call. 
-4. "CONVERT_GRIDS+TO_ONE_HOT_?": Yes if you want sound information to be converted to one hot encoding every call, no if you want to normalize based on the total number of sounds (Bool). 
+4. "CONVERT_GRIDS_TO_ONE_HOT": Yes if you want sound information to be converted to one hot encoding every call, no if you want to normalize based on the total number of sounds (Bool). 
 5. "NUMBER_OF_CONSISTENT_IPIS_FOR_MOVEMENT":  Minimum number of calls over which information needs to be heard in order to be considered for response. 

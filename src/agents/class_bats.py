@@ -378,6 +378,14 @@ class Bat:
             "TIME_STEP"
         ]
 
+        self.time_since_direction_change_using_consistency = np.round(
+            self.time_since_direction_change_using_consistency,
+            self.rounding_based_on_time_step,
+        )
+        self.time_since_direction_change_using_loudness = np.round(
+            self.time_since_direction_change_using_loudness,
+            self.rounding_based_on_time_step,
+        )
         implement_snr = str2bool(self.parameters_df["IMPLEMENT_SNR"])
         min_sound_detection_fraction = self.parameters_df[
             "MINIMUM_SOUND_DETECTION_FRACTION"
@@ -421,16 +429,22 @@ class Bat:
         #     self.detections_for_direction_change_consistency = []
         #     self.detections_for_direction_change_loudness = []
 
+        # (
+        #     print(self.time_since_direction_change_using_consistency)
+        #     if self.time_since_direction_change_using_consistency >= 0
+        #     else 1
+        # )
+
         if (
             self.time_since_direction_change_using_consistency
             >= direction_change_time_interval_using_consistency
             and len(self.detections_for_direction_change_consistency) != 0
         ):
             # self.detections_for_direction_change_loudness = []
-            if self.id == 0:
-                print(
-                    f"consistency ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id}"
-                )
+            # if self.id == 0:
+            print(
+                f"id {id(self)} consistency ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id} and {direction_change_time_interval_using_consistency} "
+            )
             heard_sounds = []
 
             if implement_snr:
@@ -474,12 +488,18 @@ class Bat:
             and len(self.detections_for_direction_change_consistency) == 0
         ):
             # self.detections_for_direction_change_loudness = []
+            print(
+                f"id {id(self)} nothing ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id} and {direction_change_time_interval_using_consistency} "
+            )
+
             self.ipi_matrix_for_consistency = (
                 given_parameters_df_return_grid_matrix_zeros(self.parameters_df)[0]
             )
             self.memory_window_sum_matrix = self.ipi_matrix_for_consistency.copy()
             self.any_consistent_sound = "no"
             # print("nothing being heard in consistnecy range")
+            self.time_since_direction_change_using_consistency = -np.inf
+            self.detections_for_direction_change_consistency = []
             self.detections_for_direction_change_loudness = []
 
         # TODO: NEW STUFF REGARDING LOUDNESS

@@ -7,8 +7,9 @@ import sys
 import uuid
 from datetime import datetime
 
+import hydra
 import numpy as np
-import pandas as pd
+from omegaconf import DictConfig, OmegaConf
 
 # from supporting_files.store_history import CompactHistoryManager
 
@@ -29,14 +30,29 @@ from supporting_files.utilities import (
 from supporting_files.vectors import Vector
 
 
+# @hydra.main(version_base=None, config_path="../config/", config_name="config")
+def cfg_to_flat_dict(cfg):
+    print(cfg)
+    nested = OmegaConf.to_container(cfg, resolve=True)
+    print(nested)
+    flat = {}
+    for group in nested.values():
+        flat.update(group)
+    print(flat)
+    return flat
+
+
 class Simulation:
     """one instance of the simulation;
     this object's goal is to run the simulation for one
     instance of the set of parameters chosen
     """
 
-    def __init__(self, parameters_df, output_dir, store_history=True):
-
+    def __init__(self, cfg, output_dir, store_history=True):
+        parameters_df = cfg_to_flat_dict(cfg)
+        # print(parameters_df)
+        # print(f"simulation id {id(self)}")
+        # parameters_df = cfg
         Bat._id_counter = 0
         Obstacle._id_counter = 0
         self.parameters_df = parameters_df
@@ -402,7 +418,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/testing_group_dynamics/5_control/"
+    OUTPUT_DIR = r"./data/raw/debug/3/"
     PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
     PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
     sim = Simulation(PARAMETER_DF, OUTPUT_DIR)

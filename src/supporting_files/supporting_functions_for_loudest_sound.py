@@ -121,7 +121,7 @@ def convert_detected_sounds_into_grids_loudest_sound(
     heard_sounds, parameters_df, bat_direction, allocentric_axis_y
 ):
     spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
-    # convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS+TO_ONE_HOT_?"])
+    # convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS_TO_ONE_HOT"])
 
     matrix_spatial_grid, spatial_grid_theta = generate_empty_matrix(parameters_df)
     store_grid = matrix_spatial_grid.copy()

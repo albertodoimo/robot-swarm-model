@@ -57,7 +57,7 @@ def convert_detected_sounds_into_grids(
     """
 
     spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
-    convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS+TO_ONE_HOT_?"])
+    convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS_TO_ONE_HOT"])
     time_step_size = parameters_df["TIME_STEP"]
     rounding_based_on_time_step = len(str(time_step_size).split(".")[1])
 
