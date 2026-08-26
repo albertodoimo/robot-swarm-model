@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # Directory containing your parameter files
     PARAM_DIR = "./src/paramsets/effect_of_group_size/"
 
-    N_RUNS = 20  # Number of iterations per parameter set
+    N_RUNS = 3  # Number of iterations per parameter set
     DATA_STORAGE_DIR = r"./group_experiment_non_null_2_3/"  # Base output directory
     # MAX_WORKERS = 4  # Limit number of parallel processes
 

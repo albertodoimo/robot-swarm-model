@@ -31,6 +31,6 @@ def load_and_convert_files(folder_dir, resolution):
 
 
 if __name__ == "__main__":
-    OUTPUT_DIR = "/home/adityamoger/Documents/GitHub/bat-swarm-model/data/raw/testing_group_dynamics/4/"
+    OUTPUT_DIR = "/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-08-25/18-31-17/0"
     df = load_and_convert_files(OUTPUT_DIR, 10)
-    df.to_csv(OUTPUT_DIR + "/swarmverse_data_19_08.csv")
+    df.to_csv(OUTPUT_DIR + "/0.csv")

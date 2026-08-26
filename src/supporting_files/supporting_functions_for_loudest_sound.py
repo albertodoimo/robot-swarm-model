@@ -121,7 +121,7 @@ def convert_detected_sounds_into_grids_loudest_sound(
     heard_sounds, parameters_df, bat_direction, allocentric_axis_y
 ):
     spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
-    # convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS+TO_ONE_HOT_?"])
+    # convert_grid_to_one_hot = str2bool(parameters_df["CONVERT_GRIDS_TO_ONE_HOT"])
 
     matrix_spatial_grid, spatial_grid_theta = generate_empty_matrix(parameters_df)
     store_grid = matrix_spatial_grid.copy()
@@ -225,14 +225,14 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
     # if matrix[output_cell_number] < intensity_threshold_for_attraction:
     #     output_cell_number = [np.nan, np.nan]
 
-    if id == 0:
-        print(
-            f"attraction? {is_bat_doing_attraction} repulsion? {is_bat_doing_repulsion}"
-        )
-        print(
-            f"loudest intensity attract {loudest_intensity_in_attraction_matrix}, repel {loudest_intensity_in_repulsion_matrix}"
-        )
-        print(f"output {output_cell_number}")
+    # if id == 0:
+    #     print(
+    #         f"attraction? {is_bat_doing_attraction} repulsion? {is_bat_doing_repulsion}"
+    #     )
+    #     print(
+    #         f"loudest intensity attract {loudest_intensity_in_attraction_matrix}, repel {loudest_intensity_in_repulsion_matrix}"
+    #     )
+    #     print(f"output {output_cell_number}")
 
     return output_cell_number
 

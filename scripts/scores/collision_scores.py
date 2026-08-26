@@ -73,7 +73,7 @@ def compute_collision_counts_and_length(bat_positions, parameters_df):
         track_collision_in_last_frame_w_bats = track_collision_in_current_frame_w_bats
         track_collision_in_last_frame_w_walls = track_collision_in_current_frame_w_walls
 
-    return collision_counter, wall_collision_counter, batbat_collision_counter
+    return wall_collision_counter, batbat_collision_counter
 
 
 def time_spent_in_collision(bat_positions, parameters_df):

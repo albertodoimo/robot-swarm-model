@@ -1,7 +1,8 @@
-bat in enumerate(self.bats):
-        #     bat.position = Vector(
-        #         0.1,
-        #         self.parameters_df["ARENA_LENGTH"] / 2
-        #         + (0.1 * (i - len(self.bats) / 2) * (i % 2 - (1 / 2))),
-        #     )
-        #     bat.dir
+",
+            # f"arena.NUM_BATS={','.join(map(str, NUM_BATS_VALUES))}",
+            # f"bat.LOUDNESS_TIME_DELAY_CAP={','.join(map(str, LOUDNESS_TIME_DELAY_CAPS))}",
+            # f"bat.ANGLE_RANGE_FOR_ATTRACTION={','.join(map(str, ANGLE_RANGE_FOR_ATTRACTIONS))}",
+            # f"bat.SPL_THRESHOLD_FOR_ATTRACTION={','.join(map(str, SPL_THRESHOLD_FOR_ATTRACTIONS))}",
+            # f"bat.SUSTAIN_SOUNDS={','.join(map(str, ANGLE_RANGE_FOR_ATTRACTIONS))}",
+            # f"arena.seed={','.join(map(str, SEEDS))}",
+            # f"hydra.launcher

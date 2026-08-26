@@ -1,0 +1,11 @@
+defaults:
+  - arena: default
+  - bat: default
+  - override hydra/launcher: joblib
+  - _self_
+
+hydra:
+  launcher:
+    n_jobs: 8
+    batch_size: 1
+    # inner_max_num_threads: 1

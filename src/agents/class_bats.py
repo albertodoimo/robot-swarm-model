@@ -104,8 +104,8 @@ class Bat:
 
         self.update_movement()
         self.emit_sounds(current_time, sound_objects)
-        if self.id == 0 and self.time_since_direction_change_using_consistency == 0:
-            print(f"bat_0_emit_at_{self.emit_times[-1]}")
+        # if self.id == 0 and self.time_since_direction_change_using_consistency == 0:
+        #     print(f"bat_0_emit_at_{self.emit_times[-1]}")
         self.update_direction(current_time, sound_objects, temporal_masking_file)
 
         # just make sure egocentric is truly egocentric everywhere.
@@ -378,6 +378,14 @@ class Bat:
             "TIME_STEP"
         ]
 
+        self.time_since_direction_change_using_consistency = np.round(
+            self.time_since_direction_change_using_consistency,
+            self.rounding_based_on_time_step,
+        )
+        self.time_since_direction_change_using_loudness = np.round(
+            self.time_since_direction_change_using_loudness,
+            self.rounding_based_on_time_step,
+        )
         implement_snr = str2bool(self.parameters_df["IMPLEMENT_SNR"])
         min_sound_detection_fraction = self.parameters_df[
             "MINIMUM_SOUND_DETECTION_FRACTION"
@@ -421,16 +429,22 @@ class Bat:
         #     self.detections_for_direction_change_consistency = []
         #     self.detections_for_direction_change_loudness = []
 
+        # (
+        #     print(self.time_since_direction_change_using_consistency)
+        #     if self.time_since_direction_change_using_consistency >= 0
+        #     else 1
+        # )
+
         if (
             self.time_since_direction_change_using_consistency
             >= direction_change_time_interval_using_consistency
             and len(self.detections_for_direction_change_consistency) != 0
         ):
             # self.detections_for_direction_change_loudness = []
-            if self.id == 0:
-                print(
-                    f"consistency ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id}"
-                )
+            # if self.id == 0:
+            # print(
+            #     f"id {id(self)} consistency ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id} and {direction_change_time_interval_using_consistency} "
+            # )
             heard_sounds = []
 
             if implement_snr:
@@ -474,12 +488,18 @@ class Bat:
             and len(self.detections_for_direction_change_consistency) == 0
         ):
             # self.detections_for_direction_change_loudness = []
+            # print(
+            #     f"id {id(self)} nothing ran at {current_time} and {self.time_since_direction_change_using_consistency} and id {self.id} and {direction_change_time_interval_using_consistency} "
+            # )
+
             self.ipi_matrix_for_consistency = (
                 given_parameters_df_return_grid_matrix_zeros(self.parameters_df)[0]
             )
             self.memory_window_sum_matrix = self.ipi_matrix_for_consistency.copy()
             self.any_consistent_sound = "no"
             # print("nothing being heard in consistnecy range")
+            self.time_since_direction_change_using_consistency = -np.inf
+            self.detections_for_direction_change_consistency = []
             self.detections_for_direction_change_loudness = []
 
         # TODO: NEW STUFF REGARDING LOUDNESS
@@ -492,20 +512,20 @@ class Bat:
             and not str2bool(self.any_consistent_sound)
         ):
             heard_sounds = []
-            if self.id == 0:
+            # if self.id == 0:
 
-                print(
-                    f"loudness_ran at {current_time} and {self.time_since_direction_change_using_loudness} and id {self.id}"
-                )
-            if self.id == 0:
-                direct_calls = [
-                    f"emmiter {i["emitter_id"]}, spl {i["received_spl"]}, angle {i["angle_wrt_bat"]}, delay {i["delay"]}"
-                    for i in self.detections_for_direction_change_loudness
-                    if i["type"] == "direct"
-                ]
-                print(
-                    f"direct calls : {direct_calls}, nuimber of direct calls {len(direct_calls)}"
-                )
+            #     print(
+            #         f"loudness_ran at {current_time} and {self.time_since_direction_change_using_loudness} and id {self.id}"
+            #     )
+            # if self.id == 0:
+            #     direct_calls = [
+            #         f"emmiter {i["emitter_id"]}, spl {i["received_spl"]}, angle {i["angle_wrt_bat"]}, delay {i["delay"]}"
+            #         for i in self.detections_for_direction_change_loudness
+            #         if i["type"] == "direct"
+            #     ]
+            #     print(
+            #         f"direct calls : {direct_calls}, nuimber of direct calls {len(direct_calls)}"
+            #     )
 
             if implement_snr:
                 heard_sounds = given_sound_objects_return_detected_sounds(
@@ -552,11 +572,11 @@ class Bat:
                 )
             )
 
-            print(
-                f"response : {self.response_type}, angle to next direction : {np.degrees(self.direction.angle_between(self.next_direction))}"
-                if self.id == 0
-                else ""
-            )
+            # print(
+            #     f"response : {self.response_type}, angle to next direction : {np.degrees(self.direction.angle_between(self.next_direction))}"
+            #     if self.id == 0
+            #     else ""
+            # )
 
             self.detections_for_direction_change_loudness = []
             self.time_since_direction_change_using_loudness = -np.inf

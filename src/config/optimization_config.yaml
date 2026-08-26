@@ -1,0 +1,32 @@
+defaults:
+  - arena: default
+  - bat: default
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: nsgaii
+  - override hydra/launcher: joblib
+  - _self_
+
+hydra:
+  sweeper:
+    sampler:
+      seed: 123
+      population_size: 20
+      mutation_prob: null
+      crossover_prob: 0.9
+      swapping_prob: 0.5
+      constraints_func: null
+    direction: [minimize, minimize]
+    storage: sqlite:///optuna_study.db
+    study_name: multi-objective-attraction
+    n_trials: 240
+    n_jobs: 20
+    params:
+      bat.LOUDNESS_TIME_DELAY_CAP: range(0.012, 0.052, step=0.010)
+      bat.SPL_THRESHOLD_FOR_ATTRACTION: range(60, 140, step=20)
+      bat.SPL_THRESHOLD_FOR_REPULSION: range(100, 140, step=10)
+      bat.SUSTAIN_SOUNDS: range(1, 9, step=2)
+      bat.ANGLE_RANGE_FOR_REPULSION: range(30, 180, step=30)
+      bat.BAT_FRONTAL_RANGE: range(30, 180, step=30)
+      bat.ANGLE_RANGE_FOR_ATTRACTION: range(30, 180, step=30)
+  launcher:
+    n_jobs: 12
