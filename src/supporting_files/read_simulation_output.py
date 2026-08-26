@@ -3,6 +3,7 @@
 import glob
 
 import numpy as np
+
 from supporting_files.utilities import convert_txt_to_int_or_float, make_vector
 from supporting_files.vectors import Vector
 
@@ -88,7 +89,7 @@ def read_data_per_simulation_per_bat(folder_dir, received_or_emitted):
             _array_to_dump_data.extend(data_per_timestep)
     # print(emission_times)
     # print(_array_to_dump_data[0:10])
-    print(len(_array_to_dump_data))
+    # print(len(_array_to_dump_data))
     # print([i.shape for i in _array_to_dump_data])
     # raise ValueError
     return _array_to_dump_data, emission_times

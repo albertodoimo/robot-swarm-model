@@ -1,0 +1,4 @@
+- arena.NUM_BATS=4
+- bat.LOUDNESS_TIME_DELAY_CAP=0.05
+- bat.ANGLE_RANGE_FOR_ATTRACTION=180
+- arena.seed=1

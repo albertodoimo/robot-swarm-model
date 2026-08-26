@@ -47,14 +47,25 @@ def load_history_dump(folder_path):
         data = np.load(file_path)
         times = data["times"]
         positions_array = data["positions"]
+        directions_array = data["directions"]
         # call_times_array = data["bat_call_time"]
         for i, frame_time in enumerate(times):
             frame_data = positions_array[i]
+            frame_direction_data = directions_array[i]
+
             valid_positions = frame_data[~np.isnan(frame_data)]
+            valid_directions = frame_direction_data[~np.isnan(frame_direction_data)]
+
             bat_positions = np.array(
                 [
                     (valid_positions[j], valid_positions[j + 1])
                     for j in range(0, len(valid_positions), 2)
+                ]
+            )
+            bat_directions = np.array(
+                [
+                    (valid_directions[j], valid_directions[j + 1])
+                    for j in range(0, len(valid_directions), 2)
                 ]
             )
             # bat_call_time = np.array([])
@@ -63,6 +74,7 @@ def load_history_dump(folder_path):
                 {
                     "time": np.round(frame_time, 3),
                     "bat_positions": bat_positions[:],
+                    "bat_directions": bat_directions[:],
                     # "bat_positions_y": bat_positions[:, 1],
                     # "bat_call_time": bat_call_time
                 }
@@ -74,9 +86,14 @@ def load_history_dump(folder_path):
 def filter_bat_positions_from_history(all_frames):
 
     store_only_positions = []
+    store_only_directions = []
+
     for item in all_frames:
+        # print(item)
         store_only_positions.append(item["bat_positions"])
-    return store_only_positions
+        store_only_directions.append(item["bat_directions"])
+
+    return store_only_positions, store_only_directions
 
 
 def reformat_history(history, focal_bat, parameter_df, iteration_label):

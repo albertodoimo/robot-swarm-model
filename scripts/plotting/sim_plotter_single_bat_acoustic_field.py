@@ -563,11 +563,11 @@ def visualize(
     if save_animation:
         ffwriter = animation.FFMpegWriter(fps=parameters_df["FRAME_RATE"])
         ani.save(
-            output_dir + f"/animation_without_sound_id_{unique_id}.mp4",
+            save_animation + f"/animation_without_sound_id_{unique_id}.mp4",
             writer=ffwriter,
         )
-    plt.show()
-    # plt.clf()
+    # plt.show()
+    plt.clf()
 
 
 if __name__ == "__main__":

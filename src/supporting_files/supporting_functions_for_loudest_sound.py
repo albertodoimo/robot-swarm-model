@@ -225,14 +225,14 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
     # if matrix[output_cell_number] < intensity_threshold_for_attraction:
     #     output_cell_number = [np.nan, np.nan]
 
-    if id == 0:
-        print(
-            f"attraction? {is_bat_doing_attraction} repulsion? {is_bat_doing_repulsion}"
-        )
-        print(
-            f"loudest intensity attract {loudest_intensity_in_attraction_matrix}, repel {loudest_intensity_in_repulsion_matrix}"
-        )
-        print(f"output {output_cell_number}")
+    # if id == 0:
+    #     print(
+    #         f"attraction? {is_bat_doing_attraction} repulsion? {is_bat_doing_repulsion}"
+    #     )
+    #     print(
+    #         f"loudest intensity attract {loudest_intensity_in_attraction_matrix}, repel {loudest_intensity_in_repulsion_matrix}"
+    #     )
+    #     print(f"output {output_cell_number}")
 
     return output_cell_number
 
