@@ -1,0 +1,4 @@
+- arena.NUM_BATS=20
+- bat.LOUDNESS_TIME_DELAY_CAP=0.05
+- bat.CONSISTENCY_TIME_DELAY_CAP=0.014
+- arena.seed=1

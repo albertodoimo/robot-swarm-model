@@ -12,6 +12,9 @@ from scores.collision_scores_single_bat import (
     compute_collision_counts_and_length,
     compute_collision_rate,
 )
+from scores.milling_score import compute_milling
+from scores.nearest_neighbour_distance import compute_nearest_neighbour_distance
+from scores.polarization_score import compute_polarization
 from scores.space_occupied_scores import space_occupied_score
 
 
@@ -137,3 +140,36 @@ def take_history_store_scores(sim, sim_iteration_number):
     dict_to_store.update(sim.parameters_df)
 
     return dict_to_store
+
+
+if __name__ == "__main__":
+    output_dir = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-09-02/17-52-52/15/data/"
+    bat_positions_raw = load_history_dump(output_dir)
+    bat_positions, bat_directions = filter_bat_positions_from_history(bat_positions_raw)
+    x = np.array(bat_directions, dtype=np.half)
+    print(x.shape)
+
+    import matplotlib.pyplot as plt
+
+    def running_mean(x, N):
+        cumsum = np.cumsum(np.insert(x, 0, 0))
+        return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+    milling_score_timeseries = compute_milling(
+        bat_directions=bat_directions, bat_positions=bat_positions
+    )
+    polarization_score_timeseries = compute_polarization(bat_directions)
+    nnd_timeseries = compute_nearest_neighbour_distance(bat_positions)
+    median_nnd_time_series = np.median(nnd_timeseries, axis=1)
+
+    milling_score_timeseries = running_mean(milling_score_timeseries, 1000)
+    polarization_score_timeseries = running_mean(polarization_score_timeseries, 1000)
+    median_nnd_time_series = running_mean(median_nnd_time_series, 1000)
+    plt.subplot(1, 2, 1)
+    plt.plot(milling_score_timeseries, label="milling")
+    plt.plot(polarization_score_timeseries, label="polarization")
+    plt.legend()
+    plt.subplot(1, 2, 2)
+    plt.plot(median_nnd_time_series, label="nnd")
+    plt.legend()
+    plt.show()

@@ -72,8 +72,8 @@ calculate_scores <- function(directory){
                              raw_y = raw$y, 
                              raw_t = raw$frame, 
                              raw_id = raw$id, 
-                             origin = "2026-08-3 12:00:21", 
-                             period = "0.01S", 
+                             origin = "2026-08-3 12:00:00", 
+                             period = "0.001S", 
                              tz = "America/New_York")
   
   is_geo <- FALSE
@@ -86,8 +86,8 @@ calculate_scores <- function(directory){
   
   print(paste("Velocity information added for", length(data_dfs), "sets."))
   
-  sampling_timestep <- 0.01
-  time_window <- 1 # seconds
+  sampling_timestep <- 0.001
+  time_window <- 0.1 # seconds
   smoothing_time_window <- time_window / sampling_timestep
   
   g_metr <- group_metrics_per_set(data_list = data_dfs,
@@ -109,8 +109,8 @@ calculate_scores <- function(directory){
   
 }
 
-control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-08-25/18-31-17/0/0.csv"
-treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-08-25/18-31-17/2/2.csv"
+control_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/18-09-05/12/0.csv"
+treatment_dir <- "/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/18-09-05/13/0.csv"
 
 # Run calculations for each input
 results_control <- calculate_scores(control_dir)

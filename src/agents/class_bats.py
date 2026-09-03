@@ -128,16 +128,23 @@ class Bat:
 
         # boundary checks with bounce
         # TODO: re-write this to incorporate oblique boundaries!
+        if self.parameters_df["ARENA_TYPE"] == "bounded":
+            if (
+                self.position.x <= 0
+                or self.position.x >= self.parameters_df["ARENA_WIDTH"]
+            ):
+                self.direction.x *= -1
+                self.next_direction = self.direction
+            if (
+                self.position.y <= 0
+                or self.position.y >= self.parameters_df["ARENA_LENGTH"]
+            ):
+                self.direction.y *= -1
+                self.next_direction = self.direction
 
-        if self.position.x <= 0 or self.position.x >= self.parameters_df["ARENA_WIDTH"]:
-            self.direction.x *= -1
-            self.next_direction = self.direction
-        if (
-            self.position.y <= 0
-            or self.position.y >= self.parameters_df["ARENA_LENGTH"]
-        ):
-            self.direction.y *= -1
-            self.next_direction = self.direction
+        if self.parameters_df["ARENA_TYPE"] == "open":
+            self.position.x = self.position.x % self.parameters_df["ARENA_WIDTH"]
+            self.position.y = self.position.y % self.parameters_df["ARENA_LENGTH"]
 
     def emit_sounds(self, current_time, sound_objects):
         """Trigger sound emission by Bat.

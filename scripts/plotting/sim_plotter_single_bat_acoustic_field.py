@@ -459,7 +459,7 @@ def visualize(
             # trajectory_history[j].append((x, y))
 
             # Keep only the last 400 positions
-            if len(trajectory_history[j]) > 100:
+            if len(trajectory_history[j]) > 30:
                 trajectory_history[j].pop(0)
 
             # Update trajectory line
@@ -566,8 +566,8 @@ def visualize(
             save_animation + f"/animation_without_sound_id_{unique_id}.mp4",
             writer=ffwriter,
         )
-    # plt.show()
-    plt.clf()
+    plt.show()
+    # plt.clf()
 
 
 if __name__ == "__main__":
@@ -576,9 +576,9 @@ if __name__ == "__main__":
         # r"./chain_experiment/3_of_5_position_0/"
         # "/home/adityamoger/Documents/GitHub/src_of_cocktail_party_nightmare/MISC/consistency_of_calls_movement_rule_data/presence_revamp_10"
         # r"./MISC/sensory_volume_trials/20_bats_3"
-        r"./data/raw/attraction_loudest_sound/sustained_sounds/10_bats/2/"
+        r"/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-09-02/17-52-52/15/data/"
     )
-    SAVE_ANIMATION = OUTPUT_DIR
+    SAVE_ANIMATION = False
     visualize(
         OUTPUT_DIR,
         SAVE_ANIMATION,

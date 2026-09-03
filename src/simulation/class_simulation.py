@@ -156,7 +156,7 @@ class Simulation:
                 for jammer in self.jammers:
                     jammer.update(self.time_elapsed, self.sound_objects)
 
-                self.handle_reflections(self.time_elapsed)
+                # self.handle_reflections(self.time_elapsed)
 
                 self.sound_objects = [
                     s
@@ -342,26 +342,27 @@ class Simulation:
             reflection_point_arr, normal_arr, obstacle_id_arr = [], [], []
 
             # check walls
-            for wall_objects in self.wall_objects:
-                # check only for jammer call emissions.
+            if self.parameters_df["ARENA_TYPE"] == "bounded":
+                for wall_objects in self.wall_objects:
+                    # check only for jammer call emissions.
 
-                jammer_wall_check = sound.wall_id != wall_objects.wall_id
-                # print(sound, sound.wall_id, wall_objects.wall_id)
-                if (
-                    sound.contains_point(wall_objects.position)
-                    and f"wall_obstacle_{wall_objects.id}"
-                    not in sound.reflected_obstacles
-                    and jammer_wall_check
-                ):
-                    normal = wall_objects.get_reflection_normal(sound.origin)
-                    reflection_point = (
-                        wall_objects.position + normal * wall_objects.radius
-                    )
-                    obstacle_id = f"wall_obstacle_{wall_objects.id}"
+                    jammer_wall_check = sound.wall_id != wall_objects.wall_id
+                    # print(sound, sound.wall_id, wall_objects.wall_id)
+                    if (
+                        sound.contains_point(wall_objects.position)
+                        and f"wall_obstacle_{wall_objects.id}"
+                        not in sound.reflected_obstacles
+                        and jammer_wall_check
+                    ):
+                        normal = wall_objects.get_reflection_normal(sound.origin)
+                        reflection_point = (
+                            wall_objects.position + normal * wall_objects.radius
+                        )
+                        obstacle_id = f"wall_obstacle_{wall_objects.id}"
 
-                    normal_arr.append(normal)
-                    reflection_point_arr.append(reflection_point)
-                    obstacle_id_arr.append(obstacle_id)
+                        normal_arr.append(normal)
+                        reflection_point_arr.append(reflection_point)
+                        obstacle_id_arr.append(obstacle_id)
             # check obstacles
             for obstacle in self.obstacles:
                 if (

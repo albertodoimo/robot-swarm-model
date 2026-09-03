@@ -4,6 +4,7 @@ import uuid
 from typing import Tuple
 
 import hydra
+import matplotlib.pyplot as plt
 import numpy as np
 import optuna
 from omegaconf import DictConfig
@@ -12,6 +13,8 @@ sys.path.extend(["./src/", "./scripts/"])
 
 from plotting.sim_plotter_single_bat_acoustic_field import visualize
 from scores.collision_scores import compute_collision_counts_and_length
+from scores.milling_score import compute_milling
+from scores.polarization_score import compute_polarization
 from scores.run_all_score_calculations import (
     filter_bat_positions_from_history,
     load_history_dump,
@@ -44,9 +47,22 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
     # )
 
     bat_positions_raw = load_history_dump(output_dir)
-    bat_positions = filter_bat_positions_from_history(bat_positions_raw)
+    bat_positions, bat_directions = filter_bat_positions_from_history(bat_positions_raw)
     parameters_df = load_parameters(output_dir + "/parameters_used.json")
-    return compute_collision_counts_and_length(bat_positions, parameters_df)
+    wall_collision, bat_bat_collision = compute_collision_counts_and_length(
+        bat_positions, parameters_df
+    )
+    total_collision_rate = (bat_bat_collision) / cfg.arena.SIM_DURATION
+    total_collision_rate = total_collision_rate / cfg.arena.NUM_BATS
+    pol_time_series = compute_polarization(bat_directions)
+    milling_time_series = compute_milling(bat_directions, bat_positions)
+    mean_pol_of_group = np.mean(pol_time_series)
+    mena_milling_of_group = np.mean(milling_time_series)
+    print(total_collision_rate, mean_pol_of_group, mena_milling_of_group)
+
+    plt.plot(milling_time_series)
+    plt.show()
+    return total_collision_rate, mean_pol_of_group
 
 
 if __name__ == "__main__":
