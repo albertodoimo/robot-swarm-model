@@ -15,8 +15,9 @@ from omegaconf import DictConfig, OmegaConf
 
 sys.path.append("./src/")
 sys.path.append("./scripts/")
-
 from plotting.sim_plotter_single_bat_acoustic_field import visualize
+from scores.milling_score import compute_milling
+from scores.polarization_score import compute_polarization
 
 from agents.class_bats import Bat
 from agents.class_obstacles import Obstacle
@@ -203,15 +204,19 @@ class Simulation:
         Returns:
             dictionary : dictionary containing current simulation data
         """
+        bat_directions = [
+            (bat.direction.normalize().x, bat.direction.normalize().y)
+            for bat in self.bats
+        ]
+        bat_positions = [(bat.position.x, bat.position.y) for bat in self.bats]
+        print(compute_milling(bat_directions, bat_positions))
+        print(f"polarization {compute_polarization(bat_directions)}")
         dictionary_w_information = {
             "time": np.round(self.time_elapsed, self.rounding_based_on_time_step),
             "bat_ipi_counters": [len(bat.emit_times) for bat in self.bats],
             "bat_call_time": [bat.emit_times[-1] for bat in self.bats],
-            "bat_positions": [(bat.position.x, bat.position.y) for bat in self.bats],
-            "bat_directions": [
-                (bat.direction.normalize().x, bat.direction.normalize().y)
-                for bat in self.bats
-            ],
+            "bat_positions": bat_positions,
+            "bat_directions": bat_directions,
             # "sound_objects": [
             #     self.serialize_sound(s)
             #     for s in self.sound_objects
@@ -241,6 +246,8 @@ class Simulation:
             "bat_ipi_matrix_for_sensory_volume": [
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
+            "polarization_score": compute_polarization(bat_directions),
+            "milling_score": compute_milling(bat_directions, bat_positions),
         }
         return dictionary_w_information
 
