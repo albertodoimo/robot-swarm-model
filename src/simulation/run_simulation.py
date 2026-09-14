@@ -6,16 +6,18 @@ import hydra
 import numpy as np
 from omegaconf import DictConfig
 
-sys.path.extend(["./src/", "./scripts/"])
+sys.path.extend(["./src/", "./scripts/plot/"])
 
 # from plotting.sim_plotter_single_bat_acoustic_field import visualize
 
-from simulation.class_simulation import Simulation
-from plotting.arena_module import ArenaModule
-from plotting.info_text_module import InfoTextModule
-from plotting.polarization_milling_module import PolarizationMillingModule
-from plotting.sensory_volume_module import SensoryVolumeModule
+# from plotting.arena_module import ArenaModule
+# from plotting.info_text_module import InfoTextModule
+# from plotting.polarization_milling_module import PolarizationMillingModule
+# from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.visualizer import visualize
+
+from simulation.class_simulation import Simulation
+
 
 @hydra.main(version_base=None, config_path="../config/", config_name="config")
 def run_simulation(cfg: DictConfig) -> None:
@@ -27,16 +29,7 @@ def run_simulation(cfg: DictConfig) -> None:
     print(cfg)
     sim = Simulation(cfg, OUTPUT_DIR)
     sim.run()
-    # unique_id = uuid.uuid4()
-    # visualize(
-    #     output_dir=OUTPUT_DIR,
-    #     save_animation=hydra_dir,
-    #     unique_id=unique_id,
-    #     resolution=50,
-    #     show_sounds=False,
-    #     focal_bat=0,
-    # )
-    # OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-09-06/00-59-33/"
+
     visualize(
         output_dir=OUTPUT_DIR,
         save_animation=OUTPUT_DIR,
@@ -45,14 +38,13 @@ def run_simulation(cfg: DictConfig) -> None:
         show_sounds=False,
         focal_bat=0,
         modules=[
-            ArenaModule,
-            PolarizationMillingModule,
+            "arena",
+            "polarization_milling",
             "info_text",
             "ipi_radial",
             "sum_radial",
             "sensory_volume",
         ],
-       
     )
 
 

@@ -2,6 +2,8 @@
 and drives the FuncAnimation loop exactly like the original `visualize()`.
 """
 
+import sys
+
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -12,6 +14,7 @@ from plotting.ipi_radial_module import IPIRadialModule
 from plotting.polarization_milling_module import PolarizationMillingModule
 from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.sum_radial_module import SumRadialModule
+from tqdm import tqdm
 
 # Original behaviour = every panel included.
 DEFAULT_MODULES = [
@@ -105,10 +108,12 @@ def visualize(
             artists += module.update_frame(i, frame, context)
         return artists
 
+    frames = tqdm(range(len(history)), file=sys.stdout, desc="Animating")
+
     ani = animation.FuncAnimation(
         fig,
         animate,
-        frames=len(history),
+        frames=frames,
         init_func=init,
         blit=False,
         interval=parameters_df["FRAME_RATE"] * 0.00001,

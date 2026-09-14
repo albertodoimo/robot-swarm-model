@@ -10,12 +10,13 @@ from datetime import datetime
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
+from tqdm import tqdm
 
 # from supporting_files.store_history import CompactHistoryManager
 
 sys.path.append("./src/")
 sys.path.append("./scripts/")
-from plotting.sim_plotter_single_bat_acoustic_field import visualize
+
 from scores.milling_score import compute_milling
 from scores.polarization_score import compute_polarization
 
@@ -141,7 +142,7 @@ class Simulation:
         list_time_taken_for_each_loop = []
         save_time_of_last_iter = start_timing
 
-        for time_step in time_array[1:]:
+        for time_step in tqdm(time_array[1:]):
             # print(time_step)
             try:
                 self.time_elapsed = time_step
@@ -157,7 +158,7 @@ class Simulation:
                 for jammer in self.jammers:
                     jammer.update(self.time_elapsed, self.sound_objects)
 
-                # self.handle_reflections(self.time_elapsed)
+                self.handle_reflections(self.time_elapsed)
 
                 self.sound_objects = [
                     s
@@ -175,7 +176,7 @@ class Simulation:
                 save_time_of_last_iter = current_loop_time
 
                 if self.store_history:
-                    self.handle_data_storage_for_plotting(self.time_elapsed, False)
+                    # self.handle_data_storage_for_plotting(self.time_elapsed, False)
                     self.handle_data_storage_for_plotting_pickle(
                         self.time_elapsed, False
                     )
@@ -187,7 +188,7 @@ class Simulation:
                 break
 
         if self.store_history:
-            self.handle_data_storage_for_plotting(self.time_elapsed, True)
+            # self.handle_data_storage_for_plotting(self.time_elapsed, True)
             self.handle_data_storage_for_plotting_pickle(self.time_elapsed, True)
 
         print(self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"])
@@ -209,8 +210,7 @@ class Simulation:
             for bat in self.bats
         ]
         bat_positions = [(bat.position.x, bat.position.y) for bat in self.bats]
-        print(compute_milling(bat_directions, bat_positions))
-        print(f"polarization {compute_polarization(bat_directions)}")
+
         dictionary_w_information = {
             "time": np.round(self.time_elapsed, self.rounding_based_on_time_step),
             "bat_ipi_counters": [len(bat.emit_times) for bat in self.bats],
@@ -442,22 +442,3 @@ class Simulation:
         }
 
         return data
-
-
-if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/debug/3/"
-    PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
-    PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
-    sim = Simulation(PARAMETER_DF, OUTPUT_DIR)
-    sim.run()
-
-    unique_id = uuid.uuid4()
-    visualize(
-        output_dir=OUTPUT_DIR,
-        save_animation=True,
-        unique_id=unique_id,
-        resolution=50,
-        show_sounds=False,
-        focal_bat=0,
-    )
-    print(unique_id)

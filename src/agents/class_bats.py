@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 from agents.class_sounds import DirectSound
-from supporting_files.bats_response_to_sound import (  # decide_next_direction_based_on_loudest_sound,
+from supporting_files.bats_response_to_sound import (
     decide_next_direction_based_on_consistency,
     decide_next_direction_based_on_loudness,
 )
@@ -34,12 +34,12 @@ class Bat:
 
         self.position = Vector(
             random.uniform(2, self.parameters_df["ARENA_LENGTH"] - 2),
-            random.uniform(2, self.parameters_df["ARENA_LENGTH"] - 2),
+            random.uniform(2, self.parameters_df["ARENA_WIDTH"] - 2),
         )  # randomize initial position placement. you can also reset this in simulation.
 
         self.direction = Vector().random_direction()  # randomize start direction
         # allocentric axis is set to start direction
-        self.allocentric_axis_y = Vector(1, np.sqrt(3)).normalize()  # self.direction
+        self.allocentric_axis_y = self.direction
 
         time_step_size = self.parameters_df["TIME_STEP"]
         # find the number of decimal places to set rounding equal to time step size
@@ -63,11 +63,10 @@ class Bat:
         self.detections_for_direction_change_loudness = []
         self.track_sounds_for_sustained_sounds = []
 
-        self.time_since_direction_change_using_consistency = (
-            -np.inf
-        )  # time counter, direction change
+        # starting at -inf
+        self.time_since_direction_change_using_consistency = -np.inf
         self.time_since_direction_change_using_loudness = -np.inf
-        self.next_direction = self.direction  #
+        self.next_direction = self.direction
 
         self.memory_window_to_store_grids = []
 
