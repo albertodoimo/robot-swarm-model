@@ -8,6 +8,7 @@ defaults:
 
 hydra:
   sweeper:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
     sampler:
       seed: 124
       population_size: 30
@@ -16,7 +17,7 @@ hydra:
       swapping_prob: 0.5
       constraints_func: null
     direction: [minimize, maximize]
-    storage: sqlite:///open_space_tests_2.db
+    storage: sqlite:///multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}/open_space_tests_2.db
     study_name: open-space
     n_trials: 20
     n_jobs: 20
