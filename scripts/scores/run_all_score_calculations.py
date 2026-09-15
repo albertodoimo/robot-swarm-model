@@ -8,10 +8,6 @@ import pandas as pd
 sys.path.append("./scripts/")
 
 from scores.calling_effort_score import calling_effort
-from scores.collision_scores_single_bat import (
-    compute_collision_counts_and_length,
-    compute_collision_rate,
-)
 from scores.milling_score import compute_milling
 from scores.nearest_neighbour_distance import compute_nearest_neighbour_distance
 from scores.polarization_score import compute_polarization

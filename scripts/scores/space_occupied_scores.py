@@ -24,8 +24,3 @@ def space_occupied_score(parameters_df, bat_positions):
     total_cells = len(x) * len(y)
 
     return len(track_unique_cells)
-
-
-# if __name__ == "__main__":
-#     parameters_df = {"ARENA_WIDTH": [10], "ARENA_LENGTH": [10]}
-#     bat_positions =

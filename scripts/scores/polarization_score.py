@@ -6,21 +6,19 @@ import numpy as np
 
 
 def compute_polarization(bat_directions):
+    """compute the polarization of a frame of bat directions.
+    Magnitude of the sum of the normalized direction vector of all the agents.
 
-    # store_polarization = []
-    # for direction_frame in bat_directions:
-    # print(position_frame)
-    normalized_vectors = [
-        i / np.linalg.norm(i) for i in bat_directions
-    ]  # direction_frame]
+    Args:
+        bat_directions (list): List containing Vectors of bat directions
+
+    Returns:
+        int: polarization score, ranges from 0 to 1
+    """
+    normalized_vectors = [i / np.linalg.norm(i) for i in bat_directions]
     summed_vector = np.mean(normalized_vectors, axis=0)
     magnitude_of_summed_vector = np.linalg.norm(summed_vector)
     return magnitude_of_summed_vector
-
-
-#     store_polarization.append(magnitude_of_summed_vector)
-# median_polarization = np.median(store_polarization)
-# return store_polarization
 
 
 if __name__ == "__main__":

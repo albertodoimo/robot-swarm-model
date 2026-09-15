@@ -5,6 +5,7 @@ import uuid
 import hydra
 import numpy as np
 from omegaconf import DictConfig
+from tqdm import tqdm
 
 sys.path.extend(["./src/", "./scripts/plot/"])
 

@@ -11,7 +11,7 @@ from omegaconf import DictConfig
 
 sys.path.extend(["./src/", "./scripts/"])
 
-from plotting.sim_plotter_single_bat_acoustic_field import visualize
+
 from scores.collision_scores import compute_collision_counts_and_length
 from scores.milling_score import compute_milling
 from scores.polarization_score import compute_polarization
@@ -36,33 +36,30 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
     sim = Simulation(cfg, output_dir)
     sim.run()
 
-    # unique_id = uuid.uuid4()
-    # visualize(
-    #     output_dir=output_dir,
-    #     save_animation=hydra_dir,
-    #     unique_id=unique_id,
-    #     resolution=50,
-    #     show_sounds=False,
-    #     focal_bat=0,
-    # )
-
     bat_positions_raw = load_history_dump(output_dir)
     bat_positions, bat_directions = filter_bat_positions_from_history(bat_positions_raw)
     parameters_df = load_parameters(output_dir + "/parameters_used.json")
-    wall_collision, bat_bat_collision = compute_collision_counts_and_length(
-        bat_positions, parameters_df
-    )
+    (
+        wall_collision,
+        bat_bat_collision,
+        timeseries_wall_collision,
+        timeseries_bat_bat_collision,
+    ) = compute_collision_counts_and_length(bat_positions, parameters_df)
     total_collision_rate = (bat_bat_collision) / cfg.arena.SIM_DURATION
     total_collision_rate = total_collision_rate / cfg.arena.NUM_BATS
-    pol_time_series = compute_polarization(bat_directions)
-    milling_time_series = compute_milling(bat_directions, bat_positions)
-    mean_pol_of_group = np.mean(pol_time_series)
+    pol_time_series = [
+        compute_polarization(bat_direction_frame)
+        for bat_direction_frame in bat_directions
+    ]
+    milling_time_series = [
+        compute_milling(bat_direction_frame, bat_positions[i])
+        for i, bat_direction_frame in enumerate(bat_directions)
+    ]
+    max_pol_of_group = np.max(pol_time_series)
     mena_milling_of_group = np.mean(milling_time_series)
-    print(total_collision_rate, mean_pol_of_group, mena_milling_of_group)
+    print(total_collision_rate, max_pol_of_group, mena_milling_of_group)
 
-    plt.plot(milling_time_series)
-    plt.show()
-    return total_collision_rate, mean_pol_of_group
+    return total_collision_rate, max_pol_of_group
 
 
 if __name__ == "__main__":

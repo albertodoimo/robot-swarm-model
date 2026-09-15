@@ -15,7 +15,7 @@ def main():
     subprocess.run(
         [
             "python",
-            "./src/simulation/run_simulation.py",
+            "./src/run_simulation/run_simulation.py",
             "-m",
             f"arena.NUM_BATS={','.join(map(str, NUM_BATS_VALUES))}",
             f"bat.LOUDNESS_TIME_DELAY_CAP={','.join(map(str, LOUDNESS_TIME_DELAY_CAPS))}",

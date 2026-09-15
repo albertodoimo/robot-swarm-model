@@ -14,7 +14,7 @@ from plotting.ipi_radial_module import IPIRadialModule
 from plotting.polarization_milling_module import PolarizationMillingModule
 from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.sum_radial_module import SumRadialModule
-from tqdm import tqdm
+from tqdm.rich import tqdm
 
 # Original behaviour = every panel included.
 DEFAULT_MODULES = [

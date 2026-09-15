@@ -7,7 +7,7 @@ def main():
     subprocess.run(
         [
             "python",
-            "./src/simulation/run_simulation_for_optima.py",
+            "./src/run_simulation/run_simulation_for_optima.py",
             "--multirun",
         ],
         check=True,

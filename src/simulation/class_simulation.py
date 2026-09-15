@@ -10,7 +10,7 @@ from datetime import datetime
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
-from tqdm import tqdm
+from tqdm.rich import tqdm
 
 # from supporting_files.store_history import CompactHistoryManager
 
@@ -176,7 +176,7 @@ class Simulation:
                 save_time_of_last_iter = current_loop_time
 
                 if self.store_history:
-                    # self.handle_data_storage_for_plotting(self.time_elapsed, False)
+                    self.handle_data_storage_for_plotting(self.time_elapsed, False)
                     self.handle_data_storage_for_plotting_pickle(
                         self.time_elapsed, False
                     )
@@ -188,7 +188,7 @@ class Simulation:
                 break
 
         if self.store_history:
-            # self.handle_data_storage_for_plotting(self.time_elapsed, True)
+            self.handle_data_storage_for_plotting(self.time_elapsed, True)
             self.handle_data_storage_for_plotting_pickle(self.time_elapsed, True)
 
         print(self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"])
