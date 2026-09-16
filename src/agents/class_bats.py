@@ -574,7 +574,7 @@ class Bat:
         #     )
         # else:
 
-        rotation_time_delay = self.parameters_df["ROTATION_TIME_DELAY_CAP"]
+        rotation_time_delay = self.parameters_df["LOUDNESS_TIME_DELAY_CAP"]
 
         is_bat_processing = (current_time - self.emit_times[-1]) < rotation_time_delay
 

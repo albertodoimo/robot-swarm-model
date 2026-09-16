@@ -45,8 +45,10 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
         timeseries_wall_collision,
         timeseries_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions, parameters_df)
-    total_collision_rate = (bat_bat_collision) / cfg.arena.SIM_DURATION
+    total_collision_rate = (wall_collision + bat_bat_collision) / cfg.arena.SIM_DURATION
     total_collision_rate = total_collision_rate / cfg.arena.NUM_BATS
+    if len(bat_positions_raw) < 59000:
+        return np.inf, -np.inf
     pol_time_series = [
         compute_polarization(bat_direction_frame)
         for bat_direction_frame in bat_directions
@@ -55,7 +57,7 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
         compute_milling(bat_direction_frame, bat_positions[i])
         for i, bat_direction_frame in enumerate(bat_directions)
     ]
-    max_pol_of_group = np.max(pol_time_series)
+    max_pol_of_group = np.max(pol_time_series[1000:])
     mena_milling_of_group = np.mean(milling_time_series)
     print(total_collision_rate, max_pol_of_group, mena_milling_of_group)
 
