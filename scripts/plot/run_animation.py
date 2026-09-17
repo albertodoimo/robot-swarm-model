@@ -10,7 +10,7 @@ if __name__ == "__main__":
     #           show_sounds=True, focal_bat=0)
 
     # Only want the arena + sensory volume + text counters this time:
-    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-09-14/15-04-23/"
+    OUTPUT_DIR = r"/media/adityamoger/T7/run_simulation_for_optima/943/data/"
     visualize(
         output_dir=OUTPUT_DIR,
         save_animation=OUTPUT_DIR,
