@@ -10,11 +10,10 @@ import numpy as np
 
 sys.path.append("./src")
 
+from agents.class_bats import Bat
+from agents.class_sounds import DirectSound
 from supporting_files.utilities import load_parameters
 from supporting_files.vectors import Vector
-
-from src.agents.class_bats import Bat
-from src.agents.class_sounds import DirectSound
 
 Bat._id_counter = 0
 print(os.getcwd())

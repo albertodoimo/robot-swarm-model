@@ -162,7 +162,8 @@ cython_debug/
 *.npy
 *.gif
 *.pkl
-*.mp4
+# *.mp4
 .vscode/
-# *.json
+*.json
 *.npz
+*.yaml

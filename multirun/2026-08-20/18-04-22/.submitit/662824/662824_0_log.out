@@ -1,6 +1,0 @@
-submitit INFO (2026-08-20 18:04:23,532) - Starting with JobEnvironment(job_id=662824, hostname=ASClab, local_rank=0(1), node=0(1), global_rank=0(1))
-submitit INFO (2026-08-20 18:04:23,532) - Loading pickle: /home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-08-20/18-04-22/.submitit/662824/662824_submitted.pkl
-submitit INFO (2026-08-20 18:04:23,688) - Job completed successfully
-[2026-08-20 18:04:23,688][submitit][INFO] - Job completed successfully
-submitit INFO (2026-08-20 18:04:23,692) - Exiting after successful completion
-[2026-08-20 18:04:23,692][submitit][INFO] - Exiting after successful completion

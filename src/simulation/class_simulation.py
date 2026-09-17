@@ -10,13 +10,15 @@ from datetime import datetime
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
+from tqdm.rich import tqdm
 
 # from supporting_files.store_history import CompactHistoryManager
 
 sys.path.append("./src/")
 sys.path.append("./scripts/")
 
-from plotting.sim_plotter_single_bat_acoustic_field import visualize
+from scores.milling_score import compute_milling
+from scores.polarization_score import compute_polarization
 
 from agents.class_bats import Bat
 from agents.class_obstacles import Obstacle
@@ -140,7 +142,7 @@ class Simulation:
         list_time_taken_for_each_loop = []
         save_time_of_last_iter = start_timing
 
-        for time_step in time_array[1:]:
+        for time_step in tqdm(time_array[1:]):
             # print(time_step)
             try:
                 self.time_elapsed = time_step
@@ -203,15 +205,18 @@ class Simulation:
         Returns:
             dictionary : dictionary containing current simulation data
         """
+        bat_directions = [
+            (bat.direction.normalize().x, bat.direction.normalize().y)
+            for bat in self.bats
+        ]
+        bat_positions = [(bat.position.x, bat.position.y) for bat in self.bats]
+
         dictionary_w_information = {
             "time": np.round(self.time_elapsed, self.rounding_based_on_time_step),
             "bat_ipi_counters": [len(bat.emit_times) for bat in self.bats],
             "bat_call_time": [bat.emit_times[-1] for bat in self.bats],
-            "bat_positions": [(bat.position.x, bat.position.y) for bat in self.bats],
-            "bat_directions": [
-                (bat.direction.normalize().x, bat.direction.normalize().y)
-                for bat in self.bats
-            ],
+            "bat_positions": bat_positions,
+            "bat_directions": bat_directions,
             # "sound_objects": [
             #     self.serialize_sound(s)
             #     for s in self.sound_objects
@@ -241,6 +246,8 @@ class Simulation:
             "bat_ipi_matrix_for_sensory_volume": [
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
+            "polarization_score": compute_polarization(bat_directions),
+            "milling_score": compute_milling(bat_directions, bat_positions),
         }
         return dictionary_w_information
 
@@ -342,26 +349,27 @@ class Simulation:
             reflection_point_arr, normal_arr, obstacle_id_arr = [], [], []
 
             # check walls
-            for wall_objects in self.wall_objects:
-                # check only for jammer call emissions.
+            if self.parameters_df["ARENA_TYPE"] == "bounded":
+                for wall_objects in self.wall_objects:
+                    # check only for jammer call emissions.
 
-                jammer_wall_check = sound.wall_id != wall_objects.wall_id
-                # print(sound, sound.wall_id, wall_objects.wall_id)
-                if (
-                    sound.contains_point(wall_objects.position)
-                    and f"wall_obstacle_{wall_objects.id}"
-                    not in sound.reflected_obstacles
-                    and jammer_wall_check
-                ):
-                    normal = wall_objects.get_reflection_normal(sound.origin)
-                    reflection_point = (
-                        wall_objects.position + normal * wall_objects.radius
-                    )
-                    obstacle_id = f"wall_obstacle_{wall_objects.id}"
+                    jammer_wall_check = sound.wall_id != wall_objects.wall_id
+                    # print(sound, sound.wall_id, wall_objects.wall_id)
+                    if (
+                        sound.contains_point(wall_objects.position)
+                        and f"wall_obstacle_{wall_objects.id}"
+                        not in sound.reflected_obstacles
+                        and jammer_wall_check
+                    ):
+                        normal = wall_objects.get_reflection_normal(sound.origin)
+                        reflection_point = (
+                            wall_objects.position + normal * wall_objects.radius
+                        )
+                        obstacle_id = f"wall_obstacle_{wall_objects.id}"
 
-                    normal_arr.append(normal)
-                    reflection_point_arr.append(reflection_point)
-                    obstacle_id_arr.append(obstacle_id)
+                        normal_arr.append(normal)
+                        reflection_point_arr.append(reflection_point)
+                        obstacle_id_arr.append(obstacle_id)
             # check obstacles
             for obstacle in self.obstacles:
                 if (
@@ -434,22 +442,3 @@ class Simulation:
         }
 
         return data
-
-
-if __name__ == "__main__":
-    OUTPUT_DIR = r"./data/raw/debug/3/"
-    PARAMETER_FILE_DIR = r"./src/paramsets/test_group.json"
-    PARAMETER_DF = load_parameters(PARAMETER_FILE_DIR)
-    sim = Simulation(PARAMETER_DF, OUTPUT_DIR)
-    sim.run()
-
-    unique_id = uuid.uuid4()
-    visualize(
-        output_dir=OUTPUT_DIR,
-        save_animation=True,
-        unique_id=unique_id,
-        resolution=50,
-        show_sounds=False,
-        focal_bat=0,
-    )
-    print(unique_id)
