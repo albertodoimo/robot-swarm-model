@@ -4,6 +4,16 @@ import numpy as np
 
 
 def space_occupied_score(parameters_df, bat_positions):
+    """Score that handles space occupied by the agent in an arena
+    Partition the space into coarse grid cells (0.5 m x 0.5 m) and count
+    how many the agent walked over.
+    Args:
+        parameters_df (dict): parameter file of the simulation
+        bat_positions (list of Vectors): position of bat at every timestep
+
+    Returns:
+        int: number of unique grid cells agent was in
+    """
     # TODO : make this multi bat compatible.
     arena_width = parameters_df["ARENA_WIDTH"]
     arena_length = parameters_df["ARENA_LENGTH"]
