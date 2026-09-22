@@ -162,7 +162,7 @@ def convert_detected_sounds_into_grids_loudest_sound(
 
 
 def given_matrix_find_cell_to_respond_to_loudest_sound(
-    matrix, parameters_df, bat_direction, allocentric_axis_y, id
+    matrix, parameters_df, bat_direction, allocentric_axis_y, id, previous_output_cell
 ):
     matrix = np.matrix(matrix)
     # print(matrix)
@@ -190,25 +190,64 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
             angle_threshold=parameters_df["ANGLE_RANGE_FOR_REPULSION"],
         )
     )
-
+    print(matrix_based_on_attraction_range, attraction_range_indices)
+    print(matrix_based_on_repulsion_range, repulsion_range_indices)
+    print(previous_output_cell)
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
     intensity_threshold_for_repulsion = parameters_df["SPL_THRESHOLD_FOR_REPULSION"]
 
     # check if repulsion criteria met?
-    loudest_intensity_in_repulsion_matrix = np.max(matrix_based_on_repulsion_range)
-    is_bat_doing_repulsion = (
-        loudest_intensity_in_repulsion_matrix > intensity_threshold_for_repulsion
+    # loudest_intensity_in_repulsion_matrix = np.max(matrix_based_on_repulsion_range)
+    # print(
+    #     [
+    #         intensity > intensity_threshold_for_repulsion
+    #         for intensity in matrix_based_on_repulsion_range
+    #     ]
+    # )
+    # print(
+    #     any(
+    #         [
+    #             intensity > intensity_threshold_for_repulsion
+    #             for intensity in matrix_based_on_repulsion_range
+    #         ]
+    #     )
+    # )
+    is_bat_doing_repulsion = any(
+        [
+            intensity > intensity_threshold_for_repulsion
+            for intensity in matrix_based_on_repulsion_range
+        ][0]
     )
+    # (loudest_intensity_in_repulsion_matrix > intensity_threshold_for_repulsion)
 
-    loudest_intensity_in_attraction_matrix = np.max(matrix_based_on_attraction_range)
-    is_bat_doing_attraction = (
-        loudest_intensity_in_attraction_matrix > intensity_threshold_for_attraction
+    # loudest_intensity_in_attraction_matrix = np.max(matrix_based_on_attraction_range)
+    is_bat_doing_attraction = any(
+        [
+            intensity > intensity_threshold_for_attraction
+            for intensity in matrix_based_on_attraction_range
+        ][0]
     )
 
     if is_bat_doing_repulsion:
+        # TODO : add sustainance of response
+        if (
+            previous_output_cell[1] in repulsion_range_indices
+            and matrix_based_on_repulsion_range[previous_output_cell]
+            > intensity_threshold_for_repulsion
+        ):
+            return previous_output_cell
+
         loudest_cell_in_repulsion_matrix = np.argmax(matrix_based_on_repulsion_range)
         output_cell_number = (0, loudest_cell_in_repulsion_matrix)
     elif is_bat_doing_attraction:
+        # TODO : add sustainance of response
+        if (
+            previous_output_cell[1] in attraction_range_indices
+            and matrix_based_on_attraction_range[previous_output_cell]
+            > intensity_threshold_for_attraction
+        ):
+            return previous_output_cell
+
         loudest_cell_in_attraction_matrix = np.argmax(matrix_based_on_attraction_range)
         output_cell_number = (0, loudest_cell_in_attraction_matrix)
     elif not (is_bat_doing_repulsion or is_bat_doing_attraction):
@@ -261,6 +300,7 @@ def given_time_and_angle_return_direction_loudest_sound(
         )
         angle_of_next_direction += angle_between_self_and_allocentric_axis
 
+    print(intensity)
     if intensity > intensity_threshold_for_repulsion:
         angle_of_next_direction += np.pi
         response_type = "repulsion_passive"

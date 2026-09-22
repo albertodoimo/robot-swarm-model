@@ -598,7 +598,9 @@ class Bat:
 
             rotated_vector = current_direction.rotate(rotation_angle)
             self.direction = rotated_vector.normalize()
-        elif current_direction.angle_between(new_direction) <= np.radians(15):
+        # elif current_direction.angle_between(new_direction) <= np.radians(15):
+        #     self.speed = self.parameters_df["BAT_FAST_SPEED"]
+        if self.any_consistent_sound == "no":
             self.speed = self.parameters_df["BAT_FAST_SPEED"]
 
     def modulate_call_rate(self):

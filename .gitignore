@@ -163,7 +163,7 @@ cython_debug/
 *.gif
 *.pkl
 # *.mp4
-.vscode/
+# .vscode/
 *.json
 *.npz
 *.yaml

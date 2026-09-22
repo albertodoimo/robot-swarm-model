@@ -124,9 +124,11 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
         self.direction,
         self.allocentric_axis_y,
         self.id,
+        self.cell_index_to_respond_to,
     )
 
     self.cell_index_to_respond_to = cell_index_to_respond_to
+
     if np.isnan(cell_index_to_respond_to[0]):
         next_direction = self.next_direction
         response_type = None
