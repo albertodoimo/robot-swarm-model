@@ -56,16 +56,6 @@ def run_simulation(cfg: DictConfig) -> None:
     sim = Simulation(cfg, OUTPUT_DIR, store_history=True, store_data_for_plotting=True)
     sim.run()
 
-    stitch_together_pickle_history_lists_and_store(
-        OUTPUT_DIR,
-        hydra_parent_dir + "/data_file_storage/",
-        f"job_number_{hydra_job_num}",
-    )
-
-    for filepath in os.listdir(hydra_job_dir):
-        if ".pkl" in filepath and "history_dump" in filepath:
-            os.remove(hydra_job_dir + "/" + filepath)
-
     visualize(
         output_dir=OUTPUT_DIR,
         save_animation=hydra_parent_dir,
