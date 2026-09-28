@@ -162,7 +162,12 @@ def convert_detected_sounds_into_grids_loudest_sound(
 
 
 def given_matrix_find_cell_to_respond_to_loudest_sound(
-    matrix, parameters_df, bat_direction, allocentric_axis_y, id, previous_output_cell
+    matrix,
+    parameters_df,
+    bat_direction,
+    allocentric_axis_y,
+    id,
+    previous_output_cell,
 ):
     matrix = np.matrix(matrix)
     # print(matrix)
@@ -190,9 +195,13 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
             angle_threshold=parameters_df["ANGLE_RANGE_FOR_REPULSION"],
         )
     )
+
+    # previous_output_cell = [0, previous_output_cell_raw[1]]
     print(matrix_based_on_attraction_range, attraction_range_indices)
     print(matrix_based_on_repulsion_range, repulsion_range_indices)
     print(previous_output_cell)
+    # print(matrix_based_on_attraction_range)
+
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
     intensity_threshold_for_repulsion = parameters_df["SPL_THRESHOLD_FOR_REPULSION"]
 
@@ -232,10 +241,10 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
         # TODO : add sustainance of response
         if (
             previous_output_cell[1] in repulsion_range_indices
-            and matrix_based_on_repulsion_range[previous_output_cell]
+            and matrix_based_on_repulsion_range[0, previous_output_cell[1]]
             > intensity_threshold_for_repulsion
         ):
-            return previous_output_cell
+            return (0, previous_output_cell[1])
 
         loudest_cell_in_repulsion_matrix = np.argmax(matrix_based_on_repulsion_range)
         output_cell_number = (0, loudest_cell_in_repulsion_matrix)
@@ -243,10 +252,10 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
         # TODO : add sustainance of response
         if (
             previous_output_cell[1] in attraction_range_indices
-            and matrix_based_on_attraction_range[previous_output_cell]
+            and matrix_based_on_attraction_range[0, previous_output_cell[1]]
             > intensity_threshold_for_attraction
         ):
-            return previous_output_cell
+            return (0, previous_output_cell[1])
 
         loudest_cell_in_attraction_matrix = np.argmax(matrix_based_on_attraction_range)
         output_cell_number = (0, loudest_cell_in_attraction_matrix)

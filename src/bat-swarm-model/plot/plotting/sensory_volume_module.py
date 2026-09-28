@@ -1,5 +1,7 @@
 """'sensory_volume' polar line/fill plot (originally ax[1, 2])."""
 
+import sys
+
 import numpy as np
 from plotting.base_module import AnimationModule
 from plotting.common import (
@@ -7,7 +9,8 @@ from plotting.common import (
     plot_sensory_volume,
 )
 
-from supporting_files.supporting_functions_for_consistency import (
+sys.path.append("./src/bat-swarm-model/core/")
+from movement_decision.supporting_functions_for_consistency import (
     given_parameters_df_return_grid_matrix_zeros,
 )
 

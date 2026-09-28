@@ -22,7 +22,7 @@ Parameters crucial for the simulation are described in this file. Details about 
 8. "SPECIAL_BOUNDARY_RULES": Yes if you want complex shapes of arena. *Work in progress.*
 ### Parameters related to bats: >:)
 1. "NUM_BATS": Number of bats in the simulation. 
-2. "BAT_SPEED": Speed of the bat (m/s).
+2. "BAT_SLOW_SPEED": Speed of the bat (m/s).
 3. "BAT_FAST_SPEED": Speed of the bat when it decides to fly faster (m/s).
 4. "BAT_RADIUS": Radius of the bat (m).
 5. "CALL_DURATION": Duration of the bat call (s). We model FM bats, and hence duration corresponds to the time duration of a **single** call sweep.

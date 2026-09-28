@@ -1,7 +1,7 @@
-from plotting.arena_module import ArenaModule
-from plotting.info_text_module import InfoTextModule
-from plotting.polarization_milling_module import PolarizationMillingModule
-from plotting.sensory_volume_module import SensoryVolumeModule
+# from plotting.arena_module import ArenaModule
+# from plotting.info_text_module import InfoTextModule
+# from plotting.polarization_milling_module import PolarizationMillingModule
+# from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.visualizer import visualize
 
 if __name__ == "__main__":
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     #           show_sounds=True, focal_bat=0)
 
     # Only want the arena + sensory volume + text counters this time:
-    OUTPUT_DIR = r"/media/adityamoger/T7/run_simulation_for_optima/943/data/"
+    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-09-25/19-03-37/"
     visualize(
         output_dir=OUTPUT_DIR,
         save_animation=OUTPUT_DIR,
@@ -26,5 +26,7 @@ if __name__ == "__main__":
             "sum_radial",
             "sensory_volume",
         ],
+        rows=2,
+        columns=3,
         # or equivalently: modules=["arena", "sensory_volume", "info_text"]
     )

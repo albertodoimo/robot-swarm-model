@@ -2,7 +2,7 @@ from agents.class_sounds import DirectSound
 from supporting_files.utilities import creation_time_calculation
 
 
-def handle_reflections(self, current_time):
+def handle_reflections(current_time, sound_objects, wall_objects_list, obstacles, bats):
     """Generates reflections of the sound objects.
     Soud objects can reflect off of obstacles and bats
     to generate EchoSound s.
@@ -12,7 +12,7 @@ def handle_reflections(self, current_time):
     """
     new_echoes = []
 
-    for sound in self.sound_objects:
+    for sound in sound_objects:
         if not sound.active or not isinstance(sound, DirectSound):
             continue
 
@@ -23,7 +23,7 @@ def handle_reflections(self, current_time):
         reflection_point_arr, normal_arr, obstacle_id_arr = [], [], []
 
         # check walls
-        for wall_objects in self.wall_objects:
+        for wall_objects in wall_objects_list:
             # check only for jammer call emissions.
 
             jammer_wall_check = sound.wall_id != wall_objects.wall_id
@@ -41,7 +41,7 @@ def handle_reflections(self, current_time):
                 reflection_point_arr.append(reflection_point)
                 obstacle_id_arr.append(obstacle_id)
         # check obstacles
-        for obstacle in self.obstacles:
+        for obstacle in obstacles:
             if (
                 sound.contains_point(obstacle.position)
                 and f"obstacle_{obstacle.id}" not in sound.reflected_obstacles
@@ -55,7 +55,7 @@ def handle_reflections(self, current_time):
                 obstacle_id_arr.append(obstacle_id)
 
         # check other bats
-        for bat in self.bats:
+        for bat in bats:
             if (
                 sound.contains_point(bat.position)
                 and sound.emitter_id != bat.id
@@ -88,4 +88,4 @@ def handle_reflections(self, current_time):
                     echo.reflected_obstacles.update(sound.reflected_obstacles)
                     new_echoes.append(echo)
 
-    self.sound_objects.extend(new_echoes)
+    return new_echoes

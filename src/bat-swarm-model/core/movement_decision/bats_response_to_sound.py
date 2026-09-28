@@ -1,11 +1,10 @@
 import numpy as np
-
-from supporting_files.supporting_functions_for_consistency import (  # given_matrix_find_cell_to_respond_to_absence,
+from movement_decision.supporting_functions_for_consistency import (  # given_matrix_find_cell_to_respond_to_absence,
     convert_detected_sounds_into_grids,
     given_matrix_find_cell_to_respond_to_presence,
     given_time_and_angle_return_direction,
 )
-from supporting_files.supporting_functions_for_loudest_sound import (
+from movement_decision.supporting_functions_for_loudest_sound import (
     convert_detected_sounds_into_grids_loudest_sound,
     given_matrix_find_cell_to_respond_to_loudest_sound,
     given_time_and_angle_return_direction_loudest_sound,
@@ -32,17 +31,6 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
         )
     )
     self.memory_window_to_store_grids.append(grid_for_current_ipi)
-
-    # TODO : sensory volume stuff
-
-    # self.ipi_matrix_for_sensory_volume = (
-    #     convert_detected_sounds_into_grids_loudest_sound(
-    #         detected_sound_objects,
-    #         self.parameters_df,
-    #         self.direction,
-    #         self.allocentric_axis_y,
-    #     )[0]
-    # )
 
     length_of_memory_window = len(self.memory_window_to_store_grids)
     if length_of_memory_window > len_cap_memory_window:
@@ -78,7 +66,6 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
         time_delay_of_activated_cell = grid_row_labels[cell_index_to_respond_to[0]]
         angle_of_activated_cell = grid_column_labels[cell_index_to_respond_to[1]]
         next_direction, response_type = given_time_and_angle_return_direction(
-            time_delay_of_activated_cell,
             angle_of_activated_cell,
             self.parameters_df,
             self.direction,

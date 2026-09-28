@@ -23,7 +23,7 @@ simulation_parameters["AIR_ABSORPTION"] = 1  # absorption of medium
 simulation_parameters["REFLECTION_LOSS"] = 0.5  # dB loss per reflection
 
 
-simulation_parameters["BAT_SPEED"] = 10  # m/s; speed of bat
+simulation_parameters["BAT_SLOW_SPEED"] = 10  # m/s; speed of bat
 simulation_parameters["BAT_RADIUS"] = 0  # m; radius of bat
 simulation_parameters["EMITTED_SPL"] = 140  # dB; emitted spl of bat call
 simulation_parameters["HEARING_THRESHOLD"] = (

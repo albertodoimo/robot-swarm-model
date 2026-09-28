@@ -35,7 +35,7 @@ class TestBatObject(unittest.TestCase):
         self.assertTrue(self.bat.id == 0)
         self.assertTrue(isinstance(self.bat.position, Vector))
         self.assertTrue(isinstance(self.bat.direction, Vector))
-        self.assertTrue(self.bat.speed == self.mock_parameters["BAT_SPEED"])
+        self.assertTrue(self.bat.speed == self.mock_parameters["BAT_SLOW_SPEED"])
         self.assertTrue(self.bat.radius == self.mock_parameters["BAT_RADIUS"])
         self.assertTrue(self.bat.implement_snr is True)
         self.assertTrue(len(self.bat.emitted_sounds) == 0)

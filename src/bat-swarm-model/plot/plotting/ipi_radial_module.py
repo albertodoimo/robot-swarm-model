@@ -1,14 +1,18 @@
 """'sound activations in each ipi' radial heat-map (originally ax[1, 0])."""
 
-import numpy as np
-from plotting.base_module import AnimationModule
-from plotting.common import plot_grid_matrix_into_radial_time_series
-from plotting.convert_heard_sounds_to_matrix import convert_matrix_for_plotting_nicer
+import sys
 
-from supporting_files.supporting_functions_for_consistency import (
+import numpy as np
+
+sys.path.append("./src/bat-swarm-model/core/")
+
+from movement_decision.supporting_functions_for_consistency import (
     convert_detected_sounds_into_grids,
     given_parameters_df_return_grid_matrix_zeros,
 )
+from plotting.base_module import AnimationModule
+from plotting.common import plot_grid_matrix_into_radial_time_series
+from plotting.convert_heard_sounds_to_matrix import convert_matrix_for_plotting_nicer
 
 
 class IPIRadialModule(AnimationModule):

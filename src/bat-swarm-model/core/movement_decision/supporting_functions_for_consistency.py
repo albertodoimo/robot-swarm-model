@@ -1,7 +1,6 @@
 import bisect
 
 import numpy as np
-
 from supporting_files.utilities import str2bool
 
 
@@ -138,25 +137,23 @@ def given_matrix_shortlist_response_cells(matrix, threshold_for_activation):
 
 
 def given_time_and_angle_return_direction(
-    time_delay_of_activated_cell,
     angle_of_activated_cell,
     parameters_df,
     bat_direction,
     allocentric_axis_y,
 ):
     spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
-    time_delay_threshold_for_repulsion = parameters_df[
-        "TIME_DELAY_THRESHOLD_FOR_REPULSION"
-    ]
-    controller_type = parameters_df["CONTROLLER_TYPE"]
+    # time_delay_threshold_for_repulsion = parameters_df[
+    #     "TIME_DELAY_THRESHOLD_FOR_REPULSION"
+    # ]
 
     angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
-    radial_resolution = parameters_df["BAT_RADIAL_RESOLUTION"]
+    # radial_resolution = parameters_df["BAT_RADIAL_RESOLUTION"]
     noise_in_angle = np.random.uniform(-angular_resolution / 2, angular_resolution / 2)
     angle_of_next_direction = (
         angle_of_activated_cell - angular_resolution / 2 + noise_in_angle
     )
-    corrected_time_delay = time_delay_of_activated_cell - radial_resolution / 2
+    # corrected_time_delay = time_delay_of_activated_cell - radial_resolution / 2
 
     if spatial_reference_frame == "allocentric":
         angle_between_self_and_allocentric_axis = bat_direction.angle_between(
@@ -164,18 +161,11 @@ def given_time_and_angle_return_direction(
         )
         angle_of_next_direction += angle_between_self_and_allocentric_axis
 
-    if controller_type == "presence":
-        if corrected_time_delay <= time_delay_threshold_for_repulsion:
-            angle_of_next_direction += np.pi
-            response_type = "repulsion"
-        else:
-            # print(f"attraction delay{corrected_time_delay}")
-            response_type = "attraction"
-    elif controller_type == "absence":
-        # print(np.degrees(angle_of_next_direction))
-        response_type = "repulsion"
-    else:
-        raise ValueError("unsupported controller type")
+    # if corrected_time_delay <= time_delay_threshold_for_repulsion:
+    angle_of_next_direction += np.pi
+    response_type = "repulsion"
+    # else:
+    #     response_type = "attraction"
 
     next_direction = bat_direction.rotate(angle_of_next_direction)
     return next_direction.normalize(), response_type
@@ -301,7 +291,7 @@ def given_matrix_find_cell_to_respond_to_presence(
     )
     if no_consistent_sound_in_front:
         # print()
-        return [np.nan, np.nan]
+        return (np.nan, np.nan)
 
     find_all_elements_with_min_row_index, find_all_thresholds_with_min_row_index = (
         given_matrix_shortlist_response_cells(
@@ -311,7 +301,7 @@ def given_matrix_find_cell_to_respond_to_presence(
 
     _first_element_for_nan_check = find_all_elements_with_min_row_index[0][0]
     if np.isnan(_first_element_for_nan_check):
-        return [np.nan, np.nan]
+        return (np.nan, np.nan)
     else:
         is_previous_cell_repeated = any(
             all(item in sublist for item in previous_output_cell)
@@ -324,4 +314,5 @@ def given_matrix_find_cell_to_respond_to_presence(
         output_cell_number = find_all_elements_with_min_row_index[
             np.argsort(find_all_thresholds_with_min_row_index)[-1]
         ]
+        output_cell_number = (output_cell_number[0], output_cell_number[1])
         return output_cell_number

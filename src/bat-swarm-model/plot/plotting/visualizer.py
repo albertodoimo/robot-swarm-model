@@ -53,6 +53,8 @@ def visualize(
     show_sounds,
     focal_bat,
     modules=None,
+    rows=2,
+    columns=3,
 ):
     """Builds (and optionally saves) an animation made of the requested modules.
 
@@ -73,7 +75,8 @@ def visualize(
     history = history[::resolution]
 
     fig = plt.figure(figsize=(16, 9))
-    gridspec = GridSpec(2, 3, figure=fig)
+
+    gridspec = GridSpec(rows, columns, figure=fig)
 
     for module in module_instances:
         if module.GRID_POS is not None:

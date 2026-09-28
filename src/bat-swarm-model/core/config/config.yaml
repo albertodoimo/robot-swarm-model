@@ -11,3 +11,7 @@ hydra:
     n_jobs: 20
     batch_size: 1
     # inner_max_num_threads: 1
+
+job:
+  num: 0  # ← Safe default
+  name: single_run

@@ -14,16 +14,18 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from tqdm.rich import tqdm
 
-sys.path.append("./src/")
-sys.path.append("./scripts/")
+sys.path.append("./src/bat-swarm-model/core/")
+
+# sys.path.append("./scripts/")
 
 from supporting_files.read_simulation_output import read_data_per_simulation_per_bat
 from supporting_files.snr_implementation import parse_sounds, serialize_sound_info
 from supporting_files.utilities import load_parameters
 
 plt.style.use("dark_background")
-sys.path.append("./src")
+# sys.path.append("./src")
 plt.rcParams["animation.ffmpeg_path"] = "/usr/bin/ffmpeg"
 
 
@@ -41,7 +43,7 @@ def stitch_together_history_lists(history_output_dir):
     list_of_dict_files = np.sort(list_of_dict_files)
 
     list_containing_data_from_all_pickle_files = []
-    for pickle_file in list_of_dict_files:
+    for pickle_file in tqdm(list_of_dict_files, desc="reading dict files "):
         with open(pickle_file, "rb") as f:
             _list_containing_subset = pickle.load(f)
             list_containing_data_from_all_pickle_files.extend(_list_containing_subset)
