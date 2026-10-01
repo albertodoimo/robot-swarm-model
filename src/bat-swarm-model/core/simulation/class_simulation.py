@@ -22,6 +22,7 @@ from agents.class_obstacles import Obstacle
 from agents.class_sounds import DirectSound
 from agents.make_walls import make_walls
 from data_storage.handle_data_storage import handle_data_storage
+from scores.local_polarization_score import compute_local_polarization
 from scores.milling_score import compute_milling
 from scores.polarization_score import compute_polarization
 from supporting_files.handle_reflections import handle_reflections
@@ -52,9 +53,17 @@ class Simulation:
     """
 
     def __init__(
-        self, cfg, output_dir, store_history=True, store_data_for_plotting=True
+        self,
+        cfg,
+        output_dir,
+        store_history=True,
+        store_data_for_plotting=True,
+        use_hydra=True,
     ):
-        parameters_df = cfg_to_flat_dict(cfg)
+        if use_hydra:
+            parameters_df = cfg_to_flat_dict(cfg)
+        else:
+            parameters_df = cfg
         # print(parameters_df)
         # print(f"simulation id {id(self)}")
         # parameters_df = cfg
@@ -247,6 +256,9 @@ class Simulation:
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
             "polarization_score": compute_polarization(bat_directions),
+            "local_polarization_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2
+            ),
             "milling_score": compute_milling(bat_directions, bat_positions),
         }
         return dictionary_w_information

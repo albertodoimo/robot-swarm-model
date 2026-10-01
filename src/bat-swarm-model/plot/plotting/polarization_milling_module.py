@@ -22,22 +22,29 @@ class PolarizationMillingModule(AnimationModule):
         self.times = [frame["time"] for frame in history]
         polarization_raw = [frame["polarization_score"] for frame in history]
         milling_raw = [frame["milling_score"] for frame in history]
-
+        local_polarization_raw = [
+            frame["local_polarization_score"] for frame in history
+        ]
         # Pre-compute rolling 1-second average for every frame in the history.
         # `self.times` is sorted ascending (guaranteed by stitch_together_history_lists),
         # so we can use bisect to find the start of the 1-second window efficiently.
         self.avg_polarization = []
         self.avg_milling = []
+        self.avg_local_polarization = []
         window_seconds = 1.0
 
         for i, t in enumerate(self.times):
             start_idx = bisect.bisect_left(self.times, t - window_seconds)
             window_polarization = polarization_raw[start_idx : i + 1]
             window_milling = milling_raw[start_idx : i + 1]
+            window_local_polarization = local_polarization_raw[start_idx : i + 1]
             self.avg_polarization.append(
                 sum(window_polarization) / len(window_polarization)
             )
             self.avg_milling.append(sum(window_milling) / len(window_milling))
+            self.avg_local_polarization.append(
+                sum(window_local_polarization) / len(window_local_polarization)
+            )
 
         ax.set_title("Polarization & Milling Score (1s avg)")
         ax.set_xlim(self.times[0], self.times[-1])
@@ -49,6 +56,9 @@ class PolarizationMillingModule(AnimationModule):
         (self.milling_line,) = ax.plot(
             [], [], color="magenta", linewidth=1.5, label="Milling"
         )
+        (self.local_polarization_line,) = ax.plot(
+            [], [], color="yellow", linewidth=1.5, label="Local Polarization"
+        )
         ax.legend(
             loc="upper right",
             fontsize=9,
@@ -57,16 +67,20 @@ class PolarizationMillingModule(AnimationModule):
             edgecolor="white",
         )
 
-        return [self.polarization_line, self.milling_line]
+        return [self.polarization_line, self.milling_line, self.local_polarization_line]
 
     def init_frame(self):
         self.polarization_line.set_data([], [])
         self.milling_line.set_data([], [])
-        return [self.polarization_line, self.milling_line]
+        self.local_polarization_line.set_data([], [])
+        return [self.polarization_line, self.milling_line, self.local_polarization_line]
 
     def update_frame(self, i, frame, context):
         self.polarization_line.set_data(
             self.times[: i + 1], self.avg_polarization[: i + 1]
         )
         self.milling_line.set_data(self.times[: i + 1], self.avg_milling[: i + 1])
-        return [self.polarization_line, self.milling_line]
+        self.local_polarization_line.set_data(
+            self.times[: i + 1], self.avg_local_polarization[: i + 1]
+        )
+        return [self.polarization_line, self.milling_line, self.local_polarization_line]

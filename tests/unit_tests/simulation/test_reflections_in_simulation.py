@@ -5,20 +5,23 @@ import unittest
 
 import numpy as np
 
-sys.path.append("./src")
+sys.path.extend(
+    [
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
+    ]
+)
+from agents.class_bats import Bat
+from agents.class_sounds import DirectSound
+from simulation.class_simulation import Simulation
 from supporting_files.utilities import load_parameters
 from supporting_files.vectors import Vector
-
-from src.agents.class_bats import Bat
-from src.agents.class_sounds import DirectSound
-from src.simulation.class_simulation import Simulation
 
 # sys.path.insert(1, ".")
 
 
-DIR_PARAMS = (
-    "./src/unit_tests/params_unittest/test_reflections_in_simulation.csv"
-)
+DIR_PARAMS = "./tests/unit_tests/params_unittest/test_reflections_in_simulation.json"
 OUTPUT_DIR = "./src/unit_tests/simulation_test_files/"
 
 
@@ -29,11 +32,13 @@ class TestReflections(unittest.TestCase):
 
         self.parameters_df = load_parameters(DIR_PARAMS)
         self.bat = Bat(self.parameters_df, output_dir=OUTPUT_DIR)
-        self.simulation = Simulation(self.parameters_df, OUTPUT_DIR)
+        self.simulation = Simulation(self.parameters_df, OUTPUT_DIR, use_hydra=False)
 
     def test_echo_generation(self):
         """Test the echo generation"""
-        sound_disk_width = self.parameters_df["SOUND_DISK_WIDTH"]
+        sound_disk_width = (
+            self.parameters_df["SOUND_SPEED"] * self.parameters_df["CALL_DURATION"]
+        )
         self.bat.speed = 0
         self.bat.position = Vector(0, 0)
         self.simulation.bats = [self.bat]
@@ -65,7 +70,7 @@ class TestReflections(unittest.TestCase):
                     array_with_booleans.append(True)
                 else:
                     array_with_booleans.append(False)
-
+        print(array_with_booleans)
         self.assertTrue((array_with_booleans == [True] * 6))
         # print(f"POST {i}")
 

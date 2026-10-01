@@ -83,7 +83,18 @@ def take_history_store_scores(sim, sim_iteration_number):
     return dict_to_store
 
 
-def given_history_list_generate_score_files(history_lists, data_dir, run_id, job_id):
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0))
+    return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+
+def given_history_list_generate_score_files(
+    history_lists,
+    data_dir,
+    run_id,
+    job_id,
+    range_of_distance_for_local_score,
+):
 
     bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
         history_lists
@@ -99,19 +110,94 @@ def given_history_list_generate_score_files(history_lists, data_dir, run_id, job
     polarization_list = [
         compute_polarization(bat_directions) for bat_directions in bat_directions_list
     ]
-    local_polarization_list = [
-        compute_local_polarization(
-            bat_directions, bat_positions_list[i], parameters_df, 0.2
-        )
-        for i, bat_directions in enumerate(bat_directions_list)
-    ]
     milling_list = [
         compute_milling(bat_directions, bat_positions_list[i])
         for i, bat_directions in enumerate(bat_directions_list)
     ]
 
+    list_of_local_polarization_timeseries = []
+    list_of_local_polarization_summary = []
+    keys_for_local_polarization = []
+    keys_for_local_polarization_summary = []
+    for distance in range_of_distance_for_local_score:
+        local_polarization_list = [
+            compute_local_polarization(
+                bat_directions, bat_positions_list[i], parameters_df, distance
+            )
+            for i, bat_directions in enumerate(bat_directions_list)
+        ]
+        list_of_local_polarization_timeseries.append(local_polarization_list)
+        keys_for_local_polarization.append(f"local polarization, range {distance}")
+
+        list_of_local_polarization_summary.extend(
+            [[np.mean(local_polarization_list)], [np.std(local_polarization_list)]]
+        )
+        keys_for_local_polarization_summary.extend(
+            [
+                f"mean local polarization, range {distance}",
+                f"std local polarization, range {distance}",
+            ]
+        )
+
+    list_of_timeseries_scores = [
+        timeseries_cumulative_bat_bat_collision,
+        timeseries_cumulative_wall_collision,
+        polarization_list,
+        milling_list,
+    ]
+    list_of_keys_timeseries = [
+        "interbat collision cumulative",
+        "wall collision cumulative",
+        "polarization",
+        "milling",
+    ]
+
+    list_of_timeseries_scores.extend(list_of_local_polarization_timeseries)
+    list_of_keys_timeseries.extend(keys_for_local_polarization)
+
+    dataframe_timeseries = dict(zip(list_of_keys_timeseries, list_of_timeseries_scores))
+    dataframe_timeseries = pd.DataFrame.from_dict(dataframe_timeseries)
+
+    list_of_score_summary = [
+        [job_id],
+        [run_id],
+        [batbat_collision_counter],
+        [wall_collision_counter],
+        [np.mean(polarization_list)],
+        [np.std(polarization_list)],
+        [np.mean(milling_list)],
+        [np.std(milling_list)],
+    ]
+
+    list_of_summary_keys = [
+        "job id",
+        "job uuid",
+        "interbat collision total",
+        "wall collision total",
+        "mean polarization",
+        "std polarization",
+        "mean milling",
+        "std milling",
+    ]
+
+    list_of_score_summary.extend(list_of_local_polarization_summary)
+    list_of_summary_keys.extend(keys_for_local_polarization_summary)
+
+    dataframe_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
+    dataframe_score_summary = pd.DataFrame.from_dict(dataframe_score_summary)
+
+    dataframe_timeseries.to_csv(
+        data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
+    )
+    dataframe_score_summary.to_csv(
+        data_dir + f"/summary_dataframe_job_{job_id}_run{run_id}.csv"
+    )
+
+    return dataframe_timeseries, dataframe_score_summary
+
 
 # if __name__ == "__main__":
+
 #     output_dir = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-09-02/17-52-52/15/data/"
 #     bat_positions_raw = load_history_dump(output_dir)
 #     bat_positions, bat_directions = filter_bat_positions_from_history(bat_positions_raw)

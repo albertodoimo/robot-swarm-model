@@ -189,7 +189,7 @@ class DirectSound(EchoSound):
             reflection_loss = self.parameters_df["REFLECTION_LOSS"]
         # print(point, self.origin, self.wall_id, reflected_from)
         distance_between_sound_and_echo = self.origin.distance_to(point)
-        # print(distance_between_sound_and_echo)
+
         distance_effect_for_echoes = 20 * math.log10(
             distance_between_sound_and_echo / 1
         )

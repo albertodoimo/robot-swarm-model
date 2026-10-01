@@ -2,10 +2,15 @@ import math
 import sys
 import unittest
 import uuid
+from unittest.mock import MagicMock, patch
 
-sys.path.append("./src")
-from unittest.mock import MagicMock
-
+sys.path.extend(
+    [
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
+    ]
+)
 from agents.class_sounds import (
     DirectSound,
     EchoSound,
@@ -83,8 +88,7 @@ class TestEchoSound(unittest.TestCase):
         """Test if a point is within the sound disk"""
         # Mock point at distance 50
         point = MagicMock()
-        point.distance_to.return_value = 50.0
-
+        self.origin.distance_to.return_value = 75.0
         # Current radius is 0, so should return False
         self.assertFalse(self.echo_sound.contains_point(point))
 
@@ -93,15 +97,15 @@ class TestEchoSound(unittest.TestCase):
         self.assertTrue(self.echo_sound.contains_point(point))
 
         # Test point at edge of sound disk
-        point.distance_to.return_value = 100.0
+        self.origin.distance_to.return_value = 100.0
         self.assertTrue(self.echo_sound.contains_point(point))
 
         # Test point just outside
-        point.distance_to.return_value = 100.1
+        self.origin.distance_to.return_value = 100.1
         self.assertFalse(self.echo_sound.contains_point(point))
 
         # Test with call duration effect
-        point.distance_to.return_value = 90.0  # 100 - 0.1*343 ≈ 96.57
+        self.origin.distance_to.return_value = 90.0  # 100 - 0.1*343 ≈ 96.57
         self.assertTrue(self.echo_sound.contains_point(point))
 
     def test_sound_directionality(self):
@@ -210,7 +214,7 @@ class TestDirectSound(unittest.TestCase):
         point = MagicMock()
         point.distance_to.return_value = 10.0
         normal = MagicMock()
-
+        self.origin.distance_to.return_value = 10.0
         # Test with wall reflection
         echo = self.direct_sound.create_echo(
             point=point, current_time=1.0, normal=normal, reflected_from="wall1"
@@ -249,13 +253,12 @@ class TestDirectSound(unittest.TestCase):
 
         # Test when SPL is below threshold
         # Mock a very negative directionality factor
-        with patch.object(
-            self.direct_sound, "sound_directionality", return_value=-100.0
-        ):
-            echo = self.direct_sound.create_echo(
-                point=point, current_time=1.0, normal=normal, reflected_from="wall1"
-            )
-            self.assertIsNone(echo)
+        self.direct_sound.parameters_df["CALL_DIRECTIONALITY"] = 700
+        self.direction_vector.angle_between.return_value = 30
+        echo = self.direct_sound.create_echo(
+            point=point, current_time=1.0, normal=normal, reflected_from="wall1"
+        )
+        self.assertIsNone(echo)
 
     def test_repr(self):
         """Test string representation"""

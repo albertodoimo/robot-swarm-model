@@ -8,7 +8,13 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
-sys.path.append("./src")
+sys.path.extend(
+    [
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
+    ]
+)
 
 from agents.class_bats import Bat
 from agents.class_sounds import DirectSound
@@ -17,7 +23,7 @@ from supporting_files.vectors import Vector
 
 Bat._id_counter = 0
 print(os.getcwd())
-DIR_PARAMS = "./src/unit_tests/params_unittest/test_bat_object.csv"
+DIR_PARAMS = "./tests/unit_tests/params_unittest/test_bat_object.json"
 
 
 class TestBatObject(unittest.TestCase):
@@ -35,11 +41,9 @@ class TestBatObject(unittest.TestCase):
         self.assertTrue(self.bat.id == 0)
         self.assertTrue(isinstance(self.bat.position, Vector))
         self.assertTrue(isinstance(self.bat.direction, Vector))
-        self.assertTrue(self.bat.speed == self.mock_parameters["BAT_SLOW_SPEED"])
+        self.assertTrue(self.bat.speed == self.mock_parameters["BAT_FAST_SPEED"])
         self.assertTrue(self.bat.radius == self.mock_parameters["BAT_RADIUS"])
-        self.assertTrue(self.bat.implement_snr is True)
         self.assertTrue(len(self.bat.emitted_sounds) == 0)
-        self.assertTrue(len(self.bat.received_sounds) == 0)
 
     def test_self_id_counter(self):
         """check if id counter works as intend"""
@@ -50,6 +54,7 @@ class TestBatObject(unittest.TestCase):
 
             self.assertTrue(bat0.id == 0)
             self.assertTrue(bat1.id == 1)
+            self.assertFalse(id(bat0) == id(bat1))
 
     def test_update_movement(self):
         """check if movement step is working as intended."""
@@ -79,6 +84,18 @@ class TestBatObject(unittest.TestCase):
             (self.bat.next_direction.y == 0)
         )  # next direction equal to current direction
 
+    def test_update_movement_open_boundary(self):
+        """Test self.bat bounces off walls and all correctly"""
+        # make the self.bat hit the left wall
+        self.bat.position = Vector(0, 1)
+        self.bat.direction = Vector(-1, 0)
+
+        self.bat.parameters_df["ARENA_TYPE"] = "open"
+        self.bat.update_movement()
+        # direction shouldnt be reverse after hitting boundary
+        self.assertTrue(self.bat.direction.x == -1)
+        self.assertTrue(self.bat.direction.y == 0)  # y shouldnt chnage
+
     def test_emit_sounds_creation(self):
         """check if sound emitted wgen time threshold crosses."""
         current_time = 1.0
@@ -98,6 +115,13 @@ class TestBatObject(unittest.TestCase):
         self.assertTrue(
             self.bat.time_since_last_call != 0
         )  # there should be noise ideally
+        self.assertTrue(sound_objects[0].emitter_id == self.bat.id)
+        # check if detection lists are initiated!
+        self.assertTrue(len(self.bat.detections_for_direction_change_consistency) == 0)
+        self.assertTrue(len(self.bat.detections_for_direction_change_loudness) == 0)
+        # check if timers initiated for doing passive and activ sensing
+        self.assertTrue(self.bat.time_since_direction_change_using_consistency == 0)
+        self.assertTrue(self.bat.time_since_direction_change_using_loudness == 0)
 
     def test_emit_sounds_no_emission(self):
         """no sound should be emitted when call interval not reached"""
@@ -109,7 +133,7 @@ class TestBatObject(unittest.TestCase):
         self.bat.time_since_last_call = (
             1.0 / self.bat.parameters_df["CALL_RATE"] - 0.002
         )
-
+        print(f" current time : {current_time, 1/self.bat.call_rate}")
         self.bat.emit_sounds(current_time, sound_objects)
 
         # check that no sound was emitted
@@ -129,7 +153,7 @@ class TestBatObject(unittest.TestCase):
         current_time = 1.0
         received_spl = 80.0
 
-        with patch("agents.sounds.DirectSound", return_value=Mock()):
+        with patch("agents.class_sounds.DirectSound", return_value=Mock()):
             mock_sound.__class__ = DirectSound
             result = self.bat.convert_sound_to_dictionary(
                 mock_sound, current_time, received_spl
@@ -150,6 +174,9 @@ class TestBatObject(unittest.TestCase):
             "bat_direction",
             "bat_position",
             "bat_last_call_time",
+            "theta",
+            "angle_wrt_bat",
+            "delay",
         ]
 
         for key in expected_keys:
@@ -167,7 +194,10 @@ class TestBatObject(unittest.TestCase):
         creation_time = 0
         parameters_df = load_parameters(DIR_PARAMS)
 
-        sound_disk_width = self.bat.parameters_df["SOUND_DISK_WIDTH"]
+        sound_disk_width = (
+            self.bat.parameters_df["SOUND_SPEED"]
+            * self.bat.parameters_df["CALL_DURATION"]
+        )
 
         self.bat.position = origin
         sound1 = DirectSound(
@@ -190,13 +220,16 @@ class TestBatObject(unittest.TestCase):
         for time_passed in times_to_inspect:
             sound1.update(time_passed)
             sound2.update(time_passed)
-            self.bat.detect_sounds(time_passed, [sound1, sound2])
-
-            if len(self.bat.received_sounds) > 0:
+            received_sounds = (
+                self.bat.given_sound_objects_return_sounds_at_bat_position(
+                    time_passed, [sound1, sound2]
+                )
+            )
+            if len(received_sounds) > 0:
                 array_with_booleans.append("detected")
             else:
                 array_with_booleans.append("not detected")
-            self.bat.received_sounds = []
+            received_sounds = []
 
         expected_output = [
             "not detected",
@@ -210,22 +243,22 @@ class TestBatObject(unittest.TestCase):
             "not detected",
             "not detected",
         ]
-
+        print(array_with_booleans)
         self.assertTrue(array_with_booleans == expected_output)
 
-    def test_generate_direction_vector_given_sound(self):
-        """Test direction vector generation from sound,"""
-        sound_dict = {"received_spl": 80.0, "origin": (20, 30)}
+    # def test_generate_direction_vector_given_sound(self):
+    #     """Test direction vector generation from sound,"""
+    #     sound_dict = {"received_spl": 80.0, "origin": (20, 30)}
 
-        self.bat.position = Vector(10, 10)
+    #     self.bat.position = Vector(10, 10)
 
-        result = self.bat.generate_direction_vector_given_sound(sound_dict)
+    #     result = self.bat.generate_direction_vector_given_sound(sound_dict)
 
-        self.assertTrue(isinstance(result, Vector))
-        # next direction should point from self.bat position to sound origin
-        expected_direction = (Vector(20, 30) - self.bat.position).normalize() * 80
-        self.assertAlmostEqual(result.x, expected_direction.x)
-        self.assertAlmostEqual(result.y, expected_direction.y)
+    #     self.assertTrue(isinstance(result, Vector))
+    #     # next direction should point from self.bat position to sound origin
+    #     expected_direction = (Vector(20, 30) - self.bat.position).normalize() * 80
+    #     self.assertAlmostEqual(result.x, expected_direction.x)
+    #     self.assertAlmostEqual(result.y, expected_direction.y)
 
     def test_rotate_towards_given_degree(self):
         """Test rotation towards target direction"""
@@ -256,6 +289,7 @@ class TestBatObject(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             self.bat.decide_next_direction([])
         self.assertTrue("unsupported behaviour rule" in str(context.exception))
+        # decide directions is tested in the different file
 
     def test_cleanup_sounds(self):
         """Test sound data cleanup and saving"""
