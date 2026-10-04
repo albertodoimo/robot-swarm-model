@@ -41,10 +41,18 @@ with patch.dict(
 ):
     import sys
 
+    sys.path.extend(
+        [
+            "./src/bat-swarm-model/",
+            "./src/bat-swarm-model/core/",
+            "./src/bat-swarm-model/plot/",
+        ]
+    )
+
     from agents.class_bats import Bat
     from agents.class_obstacles import Obstacle
     from agents.class_sounds import DirectSound
-    from simulation import Simulation, cfg_to_flat_dict
+    from simulation.class_simulation import Simulation, cfg_to_flat_dict
     from supporting_files.vectors import Vector
 
 
@@ -548,3 +556,5 @@ class TestSimulationSerializeSound:
 
 
 # Add more tests as needed for edge cases and error handling
+if __name__ == "__main__":
+    pytest.main()

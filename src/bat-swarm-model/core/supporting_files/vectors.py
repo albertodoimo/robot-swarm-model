@@ -51,7 +51,8 @@ class Vector:
         mag = self.magnitude()
         if mag > 0:
             return Vector(self.x / mag, self.y / mag)
-        return Vector()
+        else:
+            raise ZeroDivisionError
 
     def distance_to(self, other):
         """measure distance between two vectors

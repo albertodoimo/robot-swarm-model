@@ -24,12 +24,12 @@ def compute_milling(bat_directions, bat_positions):
     normalized_difference_from_mean = [
         i / np.linalg.norm(i) for i in difference_vector_from_mean
     ]
-
+    print(normalized_difference_from_mean)
     cross_product_with_direction = [
         np.cross(normalized_difference_from_mean[i], normalized_vectors[i])
         for i in range(len(normalized_difference_from_mean))
     ]
-
+    print(cross_product_with_direction)
     mean_cross_vector = np.mean(cross_product_with_direction, axis=0)
 
     magnitude_of_mean_cross_vector = np.linalg.norm(mean_cross_vector)
