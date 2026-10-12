@@ -2,6 +2,8 @@
 # breif exaplination
 # take the unit direction vectors of all the agents and sum them up.
 # score is the length of the resultant vector
+import math
+
 import numpy as np
 import scipy as scp
 
@@ -27,7 +29,8 @@ def compute_local_polarization(
         bat_positions, bat_positions
     )
     scores_for_neighbourhood_per_bat = []
-
+    neighbourhood_area = math.pi * (neighbourhood_distance_threshold**2)
+    local_density_list = []
     for i in range(pair_wise_distance_matrix.shape[0]):
         bats_within_neighbourhood = [i]
         directions_of_bats_within_neighbourhood = [normalized_vectors[i]]
@@ -39,6 +42,9 @@ def compute_local_polarization(
                         normalized_vectors[j]
                     )
         # print(bats_within_neighbourhood)
+        _local_density = (len(bats_within_neighbourhood) - 1) / neighbourhood_area
+        local_density_list.append(_local_density)
+
         if len(bats_within_neighbourhood) <= 1:
             scores_for_neighbourhood_per_bat.append(0)
             continue
@@ -52,21 +58,24 @@ def compute_local_polarization(
         scores_for_neighbourhood_per_bat.append(
             magnitude_of_summed_vector_for_neighbourhood
         )
-        print(scores_for_neighbourhood_per_bat)
-        print(magnitude_of_summed_vector_for_neighbourhood)
 
     if type_id == "mean":
         local_polarization_score_for_group = np.mean(scores_for_neighbourhood_per_bat)
+        local_density = np.mean(local_density_list)
+    elif type_id == "max":
+        local_polarization_score_for_group = np.max(scores_for_neighbourhood_per_bat)
+        local_density = local_density_list[np.argmax(scores_for_neighbourhood_per_bat)]
     elif (
         isinstance(type_id, int)
         and type_id >= 0
         and type_id <= len(scores_for_neighbourhood_per_bat)
     ):
         local_polarization_score_for_group = scores_for_neighbourhood_per_bat[type_id]
+        local_density = local_density_list[type_id]
     else:
         raise TypeError("Input is not valid (not mean or the bat id!)")
 
-    return local_polarization_score_for_group
+    return local_polarization_score_for_group, local_density
 
 
 if __name__ == "__main__":

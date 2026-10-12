@@ -197,9 +197,9 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
     )
 
     # previous_output_cell = [0, previous_output_cell_raw[1]]
-    print(matrix_based_on_attraction_range, attraction_range_indices)
-    print(matrix_based_on_repulsion_range, repulsion_range_indices)
-    print(previous_output_cell)
+    # print(matrix_based_on_attraction_range, attraction_range_indices)
+    # print(matrix_based_on_repulsion_range, repulsion_range_indices)
+    # print(previous_output_cell)
     # print(matrix_based_on_attraction_range)
 
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
@@ -309,7 +309,7 @@ def given_time_and_angle_return_direction_loudest_sound(
         )
         angle_of_next_direction += angle_between_self_and_allocentric_axis
 
-    print(intensity)
+    # print(intensity)
     if intensity > intensity_threshold_for_repulsion:
         angle_of_next_direction += np.pi
         response_type = "repulsion_passive"

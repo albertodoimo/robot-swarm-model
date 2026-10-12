@@ -259,7 +259,7 @@ class Simulation:
             ],
             "polarization_score": compute_polarization(bat_directions),
             "local_polarization_score": compute_local_polarization(
-                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+                bat_directions, bat_positions, self.parameters_df, 2.5, 0
             ),
             "local_polarization_score_list": [
                 compute_local_polarization(

@@ -32,8 +32,8 @@ def handle_data_storage_for_plotting(
             ) as f:
                 pickle.dump(history, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-            with open(dir_to_store + f"history_dump_{time_stamp}.pkl", "wb") as f:
-                pickle.dump(history, f)
+            # with open(dir_to_store + f"history_dump_{time_stamp}.pkl", "wb") as f:
+            #     pickle.dump(history, f)
 
         if is_end_of_code:
             with open(

@@ -145,7 +145,6 @@ def convert_into_grids_time_series(
     for time_step in time_series_of_simulation:
         if time_step < time_series_of_call_emission[0]:
             store_grid_time_series.append([matrix_spatial_grid.copy()])
-            print(time_step)
             continue
         # print(time_series_of_call_emission, time_step)
         ipi_number = np.where(time_series_of_call_emission <= time_step)[0][-1]

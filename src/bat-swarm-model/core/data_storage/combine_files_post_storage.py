@@ -1,4 +1,5 @@
 import glob
+import gzip
 import pickle
 
 import h5py
@@ -19,12 +20,12 @@ def stitch_together_pickle_history_lists_and_store(
         list: list with all the merged lists from pickle files.
     """
 
-    list_of_dict_files = glob.glob(history_output_dir + "/history_dump_*.pkl")
+    list_of_dict_files = glob.glob(history_output_dir + "/history_dump_*.pkl.gz")
     list_of_dict_files = np.sort(list_of_dict_files)
 
     list_containing_data_from_all_pickle_files = []
     for pickle_file in tqdm(list_of_dict_files, desc="reading dict files "):
-        with open(pickle_file, "rb") as f:
+        with gzip.open(pickle_file, "rb") as f:
             _list_containing_subset = pickle.load(f)
             list_containing_data_from_all_pickle_files.extend(_list_containing_subset)
     print(id_for_simulation)

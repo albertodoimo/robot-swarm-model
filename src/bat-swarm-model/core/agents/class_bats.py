@@ -32,8 +32,8 @@ class Bat:
         self.output_dir = output_dir
 
         self.position = Vector(
-            random.uniform(2, self.parameters_df["ARENA_LENGTH"] - 2),
             random.uniform(2, self.parameters_df["ARENA_WIDTH"] - 2),
+            random.uniform(2, self.parameters_df["ARENA_LENGTH"] - 2),
         )  # randomize initial position placement. you can also reset this in simulation.
 
         self.direction = Vector().random_direction()  # randomize start direction

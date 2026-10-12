@@ -91,7 +91,7 @@ class ArenaModule(AnimationModule):
 
         cm = plt.get_cmap("gist_rainbow")
         self.cm = cm
-        print(cm(0 / num_colors))
+
         for i, bat in enumerate(bats):
             color_cm = cm(i / num_colors) if i != 0 else "red"
             # trajectory line place holders
@@ -152,7 +152,7 @@ class ArenaModule(AnimationModule):
 
     def init_frame(self):
         for marker in self.bat_markers:
-            print(f"bat_marker_{marker}")
+
             marker.center = (np.nan, np.nan)
         for arrow in self.direction_arrows:
             arrow.set_data(x=np.nan, y=np.nan, dx=0, dy=0)
