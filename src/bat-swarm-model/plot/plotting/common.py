@@ -6,6 +6,7 @@ only the *location* of the code changed, not the logic.
 
 import bisect
 import glob
+import gzip
 import os
 import pickle
 import sys

@@ -122,7 +122,7 @@ def given_history_list_generate_score_files(
     for distance in range_of_distance_for_local_score:
         local_polarization_list = [
             compute_local_polarization(
-                bat_directions, bat_positions_list[i], parameters_df, distance
+                bat_directions, bat_positions_list[i], parameters_df, distance, "mean"
             )
             for i, bat_directions in enumerate(bat_directions_list)
         ]

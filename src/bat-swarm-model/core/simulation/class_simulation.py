@@ -162,6 +162,7 @@ class Simulation:
             ]
 
             self.history.append(self.convert_necessary_information_into_dict())
+            # print(self.convert_necessary_information_into_dict())
             current_loop_time = datetime.now()
             list_time_taken_for_each_loop.append(
                 current_loop_time - save_time_of_last_iter
@@ -222,6 +223,7 @@ class Simulation:
 
         dictionary_w_information = {
             "time": np.round(self.time_elapsed, self.rounding_based_on_time_step),
+            # "bat_id": [bat.id for bat in self.bats],
             "bat_ipi_counters": [len(bat.emit_times) for bat in self.bats],
             "bat_call_time": [bat.emit_times[-1] for bat in self.bats],
             "bat_positions": bat_positions,
@@ -257,10 +259,17 @@ class Simulation:
             ],
             "polarization_score": compute_polarization(bat_directions),
             "local_polarization_score": compute_local_polarization(
-                bat_directions, bat_positions, self.parameters_df, 2
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
             ),
+            "local_polarization_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )
+                for bat in self.bats
+            ],
             "milling_score": compute_milling(bat_directions, bat_positions),
         }
+
         return dictionary_w_information
 
     def handle_reflections(self, current_time):

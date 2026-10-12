@@ -1,28 +1,33 @@
 import os
+import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from simulation import Simulation  # Adjust import path as needed
+sys.path.extend(
+    [
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
+    ]
+)
+from simulation.class_simulation import Simulation
+from supporting_files.utilities import load_parameters
+
+DIR_PARAMS = "./tests/unit_tests/params_unittest/test_bat_object.json"
 
 
 class TestSimulation(unittest.TestCase):
     def test_init_creates_directories(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            cfg = {
-                "NUM_BATS": 2,
-                "OBSTACLE_COUNT": 0,
-                "OBSTACLE_RADIUS": 0.5,
-                "SIM_DURATION": 1.0,
-                "TIME_STEP": 0.1,
-                "TEMPORAL_MASKING_FN_TYPE": "full",
-                "HEARING_THRESHOLD": 0.1,
-            }
+            cfg = load_parameters(DIR_PARAMS)
 
-            with patch("simulation.Bat"), patch("simulation.Obstacle"), patch(
-                "simulation.make_walls"
-            ), patch("simulation.handle_data_storage"), patch(
-                "simulation.read_temporal_masking_fn", return_value=[]
+            with patch("agents.class_bats.Bat"), patch(
+                "agents.class_obstacles.Obstacle"
+            ), patch("agents.make_walls.make_walls"), patch(
+                "data_storage.handle_data_storage.handle_data_storage"
+            ), patch(
+                "supporting_files.utilities.read_temporal_masking_fn", return_value=[]
             ):
 
                 Bat = Mock()
@@ -37,26 +42,21 @@ class TestSimulation(unittest.TestCase):
 
     def test_convert_necessary_information_into_dict(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            cfg = {
-                "NUM_BATS": 2,
-                "OBSTACLE_COUNT": 0,
-                "OBSTACLE_RADIUS": 0.5,
-                "SIM_DURATION": 1.0,
-                "TIME_STEP": 0.1,
-                "TEMPORAL_MASKING_FN_TYPE": "full",
-                "HEARING_THRESHOLD": 0.1,
-            }
+            cfg = load_parameters(DIR_PARAMS)
 
-            with patch("simulation.Bat"), patch("simulation.Obstacle"), patch(
-                "simulation.make_walls"
-            ), patch("simulation.handle_data_storage"), patch(
-                "simulation.read_temporal_masking_fn", return_value=[]
+            with patch("agents.class_bats.Bat"), patch(
+                "agents.class_obstacles.Obstacle"
+            ), patch("agents.make_walls.make_walls"), patch(
+                "data_storage.handle_data_storage.handle_data_storage"
             ), patch(
-                "simulation.compute_polarization", return_value=0.5
+                "supporting_files.utilities.read_temporal_masking_fn", return_value=[]
             ), patch(
-                "simulation.compute_local_polarization", return_value=0.3
+                "scores.polarization_score.compute_polarization", return_value=0.5
             ), patch(
-                "simulation.compute_milling", return_value=0.2
+                "scores.local_polarization_score.compute_local_polarization",
+                return_value=0.3,
+            ), patch(
+                "scores.milling_score.compute_milling", return_value=0.2
             ):
 
                 # Create mock bats
@@ -98,6 +98,10 @@ class TestSimulation(unittest.TestCase):
                 bat2.memory_window_sum_matrix = []
                 bat2.ipi_matrix_for_sensory_volume = []
 
+                Bat = Mock()
+                Bat.return_value = Mock()
+                Obstacle = Mock()
+                Obstacle.return_value = Mock()
                 Bat.return_value = bat1
                 Bat.side_effect = [bat1, bat2]
                 Obstacle.return_value = Mock()

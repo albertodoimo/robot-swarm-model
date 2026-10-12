@@ -10,14 +10,14 @@ if __name__ == "__main__":
     #           show_sounds=True, focal_bat=0)
 
     # Only want the arena + sensory volume + text counters this time:
-    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-09-25/19-03-37/"
+    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-10-12/02-00-52/"
     visualize(
         output_dir=OUTPUT_DIR,
-        save_animation=OUTPUT_DIR,
+        save_animation=False,  # OUTPUT_DIR,
         unique_id="plots",
         resolution=30,
         show_sounds=False,
-        focal_bat=0,
+        focal_bat=1,
         modules=[
             "arena",
             "polarization_milling",

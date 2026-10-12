@@ -7,7 +7,11 @@ import scipy as scp
 
 
 def compute_local_polarization(
-    bat_directions, bat_positions, parameters_df, neighbourhood_distance_threshold
+    bat_directions,
+    bat_positions,
+    parameters_df,
+    neighbourhood_distance_threshold,
+    type_id,
 ):
     """compute the polarization of a frame of bat directions.
     Magnitude of the sum of the normalized direction vector of all the agents.
@@ -23,6 +27,7 @@ def compute_local_polarization(
         bat_positions, bat_positions
     )
     scores_for_neighbourhood_per_bat = []
+
     for i in range(pair_wise_distance_matrix.shape[0]):
         bats_within_neighbourhood = [i]
         directions_of_bats_within_neighbourhood = [normalized_vectors[i]]
@@ -36,7 +41,7 @@ def compute_local_polarization(
         # print(bats_within_neighbourhood)
         if len(bats_within_neighbourhood) <= 1:
             scores_for_neighbourhood_per_bat.append(0)
-            break
+            continue
 
         summed_vector_for_neighbourhood = np.mean(
             directions_of_bats_within_neighbourhood, axis=0
@@ -47,8 +52,19 @@ def compute_local_polarization(
         scores_for_neighbourhood_per_bat.append(
             magnitude_of_summed_vector_for_neighbourhood
         )
+        print(scores_for_neighbourhood_per_bat)
+        print(magnitude_of_summed_vector_for_neighbourhood)
 
-    local_polarization_score_for_group = np.mean(scores_for_neighbourhood_per_bat)
+    if type_id == "mean":
+        local_polarization_score_for_group = np.mean(scores_for_neighbourhood_per_bat)
+    elif (
+        isinstance(type_id, int)
+        and type_id >= 0
+        and type_id <= len(scores_for_neighbourhood_per_bat)
+    ):
+        local_polarization_score_for_group = scores_for_neighbourhood_per_bat[type_id]
+    else:
+        raise TypeError("Input is not valid (not mean or the bat id!)")
 
     return local_polarization_score_for_group
 

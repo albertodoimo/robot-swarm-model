@@ -1,6 +1,7 @@
 import glob
 import pickle
 
+import h5py
 import numpy as np
 from supporting_files.utilities import load_parameters, make_dir
 from tqdm.rich import tqdm
@@ -44,3 +45,23 @@ def stitch_together_pickle_history_lists_and_store(
     with open(dir_to_store + f"/history_dump_{id_for_simulation}.pkl", "wb") as f:
         pickle.dump(list_containing_data_from_all_pickle_files, f)
     return list_containing_data_from_all_pickle_files
+
+
+def load_history_dump(file_path):
+    """Load data from an HDF5 file saved by handle_data_storage_for_plotting.
+
+    Args:
+        file_path (str): Path to the .h5 file (e.g., "history_dump_001234567.h5")
+
+    Returns:
+        dict: Dictionary containing all stored data (arrays and attributes)
+    """
+    data = {}
+    with h5py.File(file_path, "r") as f:
+        # Load datasets (arrays)
+        for key in f.keys():
+            data[key] = f[key][:]
+        # Load attributes (non-array metadata)
+        for key in f.attrs.keys():
+            data[key] = f.attrs[key]
+    return data

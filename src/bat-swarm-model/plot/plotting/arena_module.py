@@ -91,13 +91,14 @@ class ArenaModule(AnimationModule):
 
         cm = plt.get_cmap("gist_rainbow")
         self.cm = cm
+        print(cm(0 / num_colors))
         for i, bat in enumerate(bats):
-
+            color_cm = cm(i / num_colors) if i != 0 else "red"
             # trajectory line place holders
             (trajectory_line,) = ax.plot(
                 [],
                 [],
-                color=cm(i / num_colors),
+                color=color_cm,
                 linestyle="--",
                 alpha=1,
                 linewidth=1.5,
@@ -141,7 +142,7 @@ class ArenaModule(AnimationModule):
             self.direction_arrows.append(direction_arrow)
             ax.add_patch(next_direction_arrow)
             self.next_direction_arrows.append(next_direction_arrow)
-
+        print(self.bat_markers)
         return (
             self.bat_markers
             + self.direction_arrows
@@ -151,6 +152,7 @@ class ArenaModule(AnimationModule):
 
     def init_frame(self):
         for marker in self.bat_markers:
+            print(f"bat_marker_{marker}")
             marker.center = (np.nan, np.nan)
         for arrow in self.direction_arrows:
             arrow.set_data(x=np.nan, y=np.nan, dx=0, dy=0)
@@ -168,6 +170,7 @@ class ArenaModule(AnimationModule):
 
         for j, (x, y) in enumerate(frame["bat_positions"]):
             self.bat_markers[j].center = (x, y)
+            # print(f"framenumber {i}, bat {j}, bat_position {(x,y)}")
             if "bat_directions" in frame and j < len(frame["bat_directions"]):
                 dx, dy = frame["bat_directions"][j]
                 # Scale the direction vector for better visualization
@@ -196,20 +199,20 @@ class ArenaModule(AnimationModule):
                 )
                 self.next_direction_arrows[j].set(fc=fcolor)
             # if j == focal_bat:
-            # trajectory_history[j].append((x, y))
+            self.trajectory_history[j].append((x, y))
 
             # Keep only the last 400 positions
-            if len(self.trajectory_history[j]) > 30:
+            if len(self.trajectory_history[j]) > 300:
                 self.trajectory_history[j].pop(0)
 
             # Update trajectory line
-            if len(self.trajectory_history[j]) > 1:
+            if len(self.trajectory_history[j]) > 300:
                 x_vals, y_vals = (
                     np.array(self.trajectory_history[j])[:, 0],
                     np.array(self.trajectory_history[j])[:, 1],
                 )
                 self.trajectory_lines[j].set_data(x_vals, y_vals)
-
+            # print(self.trajectory_history)
         for artist in self.sound_artists + self.detection_artists:
             artist.remove()
 
@@ -266,7 +269,7 @@ class ArenaModule(AnimationModule):
         return (
             self.bat_markers
             + self.direction_arrows
-            # + self.next_direction_arrows
+            + self.next_direction_arrows
             + self.trajectory_lines
             + self.sound_artists
             + self.detection_artists

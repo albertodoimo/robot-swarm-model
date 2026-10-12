@@ -109,6 +109,7 @@ def visualize(
         artists = []
         for module in module_instances:
             artists += module.update_frame(i, frame, context)
+        print(artists)
         return artists
 
     frames = tqdm(range(len(history)), file=sys.stdout, desc="Animating")
