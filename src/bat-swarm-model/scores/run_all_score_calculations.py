@@ -107,6 +107,7 @@ def given_history_list_generate_score_files(
         timeseries_cumulative_wall_collision,
         timeseries_cumulative_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
+    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
     polarization_list = [
         compute_polarization(bat_directions) for bat_directions in bat_directions_list
     ]
@@ -163,6 +164,7 @@ def given_history_list_generate_score_files(
         [run_id],
         [batbat_collision_counter],
         [wall_collision_counter],
+        [space_occupied_counter],
         [np.mean(polarization_list)],
         [np.std(polarization_list)],
         [np.mean(milling_list)],
@@ -174,6 +176,7 @@ def given_history_list_generate_score_files(
         "job uuid",
         "interbat collision total",
         "wall collision total",
+        "space_occupied",
         "mean polarization",
         "std polarization",
         "mean milling",
@@ -186,9 +189,9 @@ def given_history_list_generate_score_files(
     dataframe_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
     dataframe_score_summary = pd.DataFrame.from_dict(dataframe_score_summary)
 
-    dataframe_timeseries.to_csv(
-        data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
-    )
+    # dataframe_timeseries.to_csv(
+    #     data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
+    # )
     dataframe_score_summary.to_csv(
         data_dir + f"/summary_dataframe_job_{job_id}_run{run_id}.csv"
     )

@@ -43,7 +43,9 @@ def stitch_together_pickle_history_lists_and_store(
     # list_containing_data_from_all_pickle_files.append(parameter_df)
     np.append(list_containing_data_from_all_pickle_files, parameter_df)
     make_dir(dir_to_store)
-    with open(dir_to_store + f"/history_dump_{id_for_simulation}.pkl", "wb") as f:
+    with gzip.open(
+        dir_to_store + f"/history_dump_{id_for_simulation}.pkl.gz", "wb"
+    ) as f:
         pickle.dump(list_containing_data_from_all_pickle_files, f)
     return list_containing_data_from_all_pickle_files
 

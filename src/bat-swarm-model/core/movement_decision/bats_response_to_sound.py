@@ -19,9 +19,9 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
         detected_sound_objects (list): list containing detected sounds
     """
     len_cap_memory_window = self.parameters_df["MEMORY_WINDOW_FOR_CONSISTENCY"]
-    number_of_consistent_ipis_for_behaviour = self.parameters_df[
-        "NUMBER_OF_CONSISTENT_IPIS_FOR_MOVEMENT"
-    ]
+    number_of_consistent_ipis_for_behaviour = int(
+        np.ceil(self.parameters_df["MEMORY_WINDOW_FOR_CONSISTENCY"] / 2)
+    )
     grid_for_current_ipi, grid_row_labels, grid_column_labels = (
         convert_detected_sounds_into_grids(
             detected_sound_objects,
