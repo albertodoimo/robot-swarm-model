@@ -533,10 +533,14 @@ dependencies:
       - hydra-optuna-sweeper==1.2.0
       - hydra-submitit-launcher==1.2.0
       - idna==3.10
+      - iniconfig==2.3.0
       - ipykernel==7.1.0
+      - ipympl==0.10.0
       - ipython==9.9.0
+      - ipywidgets==8.1.9
       - joblib==1.5.3
       - jupyter-client==8.8.0
+      - jupyterlab-widgets==3.0.17
       - kaleido==1.3.0
       - kiwisolver==1.4.9
       - line-profiler==5.0.2
@@ -546,6 +550,7 @@ dependencies:
       - markdown-it-py==4.2.0
       - matplotlib==3.10.8
       - mdurl==0.1.2
+      - mplcursors==0.7.1
       - msgpack==1.1.0
       - narwhals==2.15.0
       - ndindex==1.10.0
@@ -563,6 +568,7 @@ dependencies:
       - platformdirs==4.3.8
       - plotbin==3.1.8
       - plotly==6.5.2
+      - pluggy==1.6.0
       - pot==0.9.6.post1
       - prettytable==3.18.0
       - prompt-toolkit==3.0.53
@@ -570,6 +576,7 @@ dependencies:
       - pynhhd==1.1.0
       - pyparsing==3.3.2
       - pyperclip==1.11.0
+      - pytest==9.1.1
       - pytz==2025.2
       - pyzmq==27.1.0
       - requests==2.32.4
@@ -586,6 +593,7 @@ dependencies:
       - sqlalchemy==1.4.54
       - statsmodels==0.14.4
       - stevedore==5.9.1
+      - style==1.1.0
       - submitit==1.5.4
       - tables==3.10.2
       - threadpoolctl==3.6.0
@@ -593,5 +601,8 @@ dependencies:
       - typing-extensions==4.14.0
       - tzdata==2025.2
       - tzlocal==5.4.4
+      - update==0.0.1
       - urllib3==2.4.0
       - wcwidth==0.5.0
+      - widgetsnbextension==4.0.16
+prefix: /home/adityamoger/anaconda3/envs/cocktail_3_dynamic_model

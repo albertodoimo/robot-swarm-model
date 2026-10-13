@@ -42,7 +42,7 @@ for i, group_size in enumerate(group_sizes):
     simulation_parameters["TIME_DELAY_THRESHOLD_FOR_REPULSION"] = simulation_parameters[
         "CONSISTENCY_TIME_DELAY_CAP"
     ]
-    simulation_parameters["BAT_FAST_SPEED"] = simulation_parameters["BAT_SPEED"]
+    simulation_parameters["BAT_FAST_SPEED"] = simulation_parameters["BAT_SLOW_SPEED"]
     simulation_parameters["PARAM_LABEL"] = f"paramset_{output_dir_counter}"
 
     with open(

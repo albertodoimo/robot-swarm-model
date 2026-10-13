@@ -1,0 +1,24 @@
+# conf/submitit.yaml
+hydra:
+  sweeper:
+    target: hydra_submitit_sweeper
+    params:
+      submitit_folder: ${hydra:runtime.cwd}/submitit_logs
+      timeout_min: 60
+      partition: main
+      time: 24:00:00
+      mem: 10T
+      cpus_per_task: 128
+      nodes: 1
+      ntasks_per_node: 1
+      job_name: dynamic_model
+      mail_type: ALL
+      mail_user: aditya.moger@uni-konstanz.de
+      output: jammingexperiment_14_10_%j.out
+      error: jammingexperiment_14_10_%j.err
+      # Use conda Python interpreter
+      python: /u/amoger/conda-envs/cocktail_3_dynamic_model/bin/python
+      # Optional: set environment variables
+      additional_parameters:
+        export: "OMP_NUM_THREADS=1,MKL_NUM_THREADS=1,OPENBLAS_NUM_THREADS=1,NUMEXPR_NUM_THREADS=1"
+      sweep:
