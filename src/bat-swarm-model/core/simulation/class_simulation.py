@@ -18,6 +18,7 @@ sys.path.append("./src/")
 sys.path.append("./scripts/")
 
 from agents.class_bats import Bat
+from agents.class_jammers import make_jammers
 from agents.class_obstacles import Obstacle
 from agents.class_sounds import DirectSound
 from agents.make_walls import make_walls
@@ -89,7 +90,7 @@ class Simulation:
             Obstacle(self.parameters_df, obstacle_position, obstacle_radius)
             for _ in range(int(self.parameters_df["OBSTACLE_COUNT"]))
         ]
-        self.jammers = []
+        self.jammers = make_jammers(self.parameters_df)
         self.wall_objects = make_walls(self.parameters_df)
 
         self.sound_objects = []  # Contains both DirectSound and EchoSound
@@ -259,12 +260,21 @@ class Simulation:
             ],
             "polarization_score": compute_polarization(bat_directions),
             "local_polarization_score": compute_local_polarization(
-                bat_directions, bat_positions, self.parameters_df, 2.5, 0
-            ),
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[0],
             "local_polarization_score_list": [
                 compute_local_polarization(
                     bat_directions, bat_positions, self.parameters_df, 2, bat.id
-                )
+                )[0]
+                for bat in self.bats
+            ],
+            "local_density_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[1],
+            "local_density_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )[1]
                 for bat in self.bats
             ],
             "milling_score": compute_milling(bat_directions, bat_positions),

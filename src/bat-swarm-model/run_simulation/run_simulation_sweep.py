@@ -5,8 +5,10 @@ import uuid
 from pathlib import Path
 
 import hydra
+import matplotlib.pyplot as plt
 import numpy as np
 import omegaconf
+import seaborn as sns
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig
 from tqdm import tqdm
@@ -73,6 +75,31 @@ def run_simulation(cfg: DictConfig) -> None:
     # for filepath in os.listdir(hydra_job_dir):
     #     if ".pkl" in filepath and "history_dump" in filepath:
     #         os.remove(hydra_job_dir + "/" + filepath)
+
+    list_of_local_polarizations = []
+    list_of_coresponding_local_density = []
+    for frame in history_list:
+        list_of_local_polarizations.extend(frame["local_polarization_score_list"])
+        list_of_coresponding_local_density.extend(frame["local_density_score_list"])
+
+    plt.figure(figsize=(8, 6))
+
+    g = sns.jointplot(
+        x=list_of_coresponding_local_density,
+        y=list_of_local_polarizations,
+        kind="hist",  # Use histogram for the 2D part
+        marginal_kws=dict(bins=10, fill=True),  # Marginal histograms
+        cmap="viridis",
+        height=6,
+        ratio=5,
+        space=0.2,
+    )
+    g.set_axis_labels("X", "Y")
+    g.figure.suptitle(
+        "Joint Plot: 2D Histogram with Marginal Distributions", fontsize=14, y=1.02
+    )
+
+    plt.savefig(OUTPUT_DIR + "/scatter_plot_oflocal_pol.png")
 
     visualize(
         output_dir=OUTPUT_DIR,

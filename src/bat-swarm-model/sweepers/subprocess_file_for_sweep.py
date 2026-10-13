@@ -12,10 +12,11 @@ N_JOBS = 12
 
 
 def main():
+
     subprocess.run(
         [
             "python",
-            "./src/bat-swarm-model/run_simulation/run_simulation.py",
+            "./src/bat-swarm-model/run_simulation/run_simulation_sweep.py",
             "-m",
             # f"arena.NUM_BATS={','.join(map(str, NUM_BATS_VALUES))}",
             f"bat.LOUDNESS_TIME_DELAY_CAP={','.join(map(str, LOUDNESS_TIME_DELAY_CAPS))}",
