@@ -17,7 +17,7 @@ hydra:
       output: jammingexperiment_14_10_%j.out
       error: jammingexperiment_14_10_%j.err
       # Use conda Python interpreter
-      python: /u/amoger/conda-envs/cocktail_3_dynamic_model/bin/python
+      python: /u/amoger/conda-envs/dynamic_model/bin/python
       # Optional: set environment variables
       additional_parameters:
         export: "OMP_NUM_THREADS=1,MKL_NUM_THREADS=1,OPENBLAS_NUM_THREADS=1,NUMEXPR_NUM_THREADS=1"
