@@ -8,7 +8,7 @@ defaults:
 
 hydra:
   launcher:
-    n_jobs: 128
+    n_jobs: 120
     batch_size: 1
     # inner_max_num_threads: 1
 
