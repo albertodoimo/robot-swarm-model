@@ -2,7 +2,7 @@
 defaults:
   - arena: default
   - bat: default
-  - override hydra/launcher: submitit
+  - override hydra/launcher: submitit_slurm
   - _self_
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
