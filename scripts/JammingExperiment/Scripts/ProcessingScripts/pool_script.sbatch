@@ -42,6 +42,6 @@ python --version
 # Run your Hydra program.
 # Add "-m param=value1,value2" for a Hydra multirun/sweep.
 
-srun python ./scripts/JammingExperiment/Scripts/ProcessingScripts/subprocess_file_for_sweep.py
+srun python ./scripts/JammingExperiment/Scripts/ProcessingScripts/subprocess_file_for_sweep.py $SLURM_CPUS_PER_TASK
 
 echo "Finished: $(date)"
