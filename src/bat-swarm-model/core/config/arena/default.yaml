@@ -1,5 +1,5 @@
 #time
-SIM_DURATION: 30
+SIM_DURATION: 3
 TIME_STEP: 0.001
 
 #agents

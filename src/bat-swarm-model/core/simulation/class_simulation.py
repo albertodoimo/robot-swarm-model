@@ -142,54 +142,57 @@ class Simulation:
 
         for time_step in tqdm(time_array[1:]):
             # print(time_step)
-            # try:
-            self.time_elapsed = time_step
+            try:
+                self.time_elapsed = time_step
 
-            for sound in self.sound_objects:
-                sound.update(self.time_elapsed)
+                for sound in self.sound_objects:
+                    sound.update(self.time_elapsed)
 
-            for bat in self.bats:
-                bat.update(self.time_elapsed, self.sound_objects, temporal_masking_file)
+                for bat in self.bats:
+                    bat.update(
+                        self.time_elapsed, self.sound_objects, temporal_masking_file
+                    )
 
-            for jammer in self.jammers:
-                jammer.update(self.time_elapsed, self.sound_objects)
+                for jammer in self.jammers:
+                    jammer.update(self.time_elapsed, self.sound_objects)
 
-            self.handle_reflections(self.time_elapsed)
+                self.handle_reflections(self.time_elapsed)
 
-            self.sound_objects = [
-                s
-                for s in self.sound_objects
-                if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
-            ]
+                self.sound_objects = [
+                    s
+                    for s in self.sound_objects
+                    if s.active
+                    and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+                ]
 
-            self.history.append(self.convert_necessary_information_into_dict())
-            # print(self.convert_necessary_information_into_dict())
-            current_loop_time = datetime.now()
-            list_time_taken_for_each_loop.append(
-                current_loop_time - save_time_of_last_iter
-            )
-
-            save_time_of_last_iter = current_loop_time
-
-            if self.store_history:
-                clear_history = handle_data_storage(
-                    self.time_elapsed,
-                    False,
-                    self.history,
-                    self.parameters_df,
-                    self.dir_to_store,
-                    self.store_data_for_plotting,
+                self.history.append(self.convert_necessary_information_into_dict())
+                # print(self.convert_necessary_information_into_dict())
+                current_loop_time = datetime.now()
+                list_time_taken_for_each_loop.append(
+                    current_loop_time - save_time_of_last_iter
                 )
-                self.history = (
-                    [] if clear_history else self.history
-                )  # clear history after storing to save memory.
 
-        # except BaseException:
-        #     print("Unexpected error:", sys.exc_info()[0])
-        #     print(
-        #         f"error in file {self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"]}"
-        #     )
-        #     break
+                save_time_of_last_iter = current_loop_time
+
+                if self.store_history:
+                    clear_history = handle_data_storage(
+                        self.time_elapsed,
+                        False,
+                        self.history,
+                        self.parameters_df,
+                        self.dir_to_store,
+                        self.store_data_for_plotting,
+                    )
+                    self.history = (
+                        [] if clear_history else self.history
+                    )  # clear history after storing to save memory.
+
+            except BaseException:
+                print("Unexpected error:", sys.exc_info()[0])
+                print(
+                    f"error in file {self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"]}"
+                )
+                break
 
         if self.store_history:
             handle_data_storage(
