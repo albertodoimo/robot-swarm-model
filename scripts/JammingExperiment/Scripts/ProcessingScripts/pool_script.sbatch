@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=dynamic_model
-#SBATCH --partition=main
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=128
-#SBATCH --mem=2250G
+#SBATCH --ntasks-per-node=1   # only start 1 task via srun because Python multiprocessing starts more tasks internally
+#SBATCH --cpus-per-task=128  
 #SBATCH --time=24:00:00
 
 #SBATCH --mail-type=ALL
