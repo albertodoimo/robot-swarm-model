@@ -39,7 +39,7 @@ from simulation.class_simulation import Simulation
 @hydra.main(
     version_base=None,
     config_path="../../Data/InputData/config",
-    config_name="submitit_config",
+    config_name="config",
 )
 def run_simulation(cfg: DictConfig) -> None:
     random.seed(cfg.arena.seed)
