@@ -29,14 +29,4 @@ conda activate /u/amoger/conda-envs/dynamic_model
 srun --ntasks=1 --cpus-per-task="${SLURM_CPUS_PER_TASK}" \
   python -u \
   scripts/JammingExperiment/Scripts/ProcessingScripts/run_sweep.py \
-  -m \
-    bat.CALL_RATE_FAST=10,20 \
-    bat.CALL_DIRECTIONALITY=4,7,10 \
-    bat.EMITTED_SPL=80,100,140 \
-    bat.HEARING_THRESHOLD=20,40,60,80 \
-    bat.BAT_RADIAL_RESOLUTION=0.002,0.004,0.006 \
-    bat.BAT_ANGULAR_RESOLUTION=15,30,60 \
-    bat.BAT_FRONTAL_RANGE=30,60,90 \
-    bat.CONSISTENCY_TIME_DELAY_CAP=0.008,0.011,0.014,0.026 \
-    bat.MEMORY_WINDOW_FOR_CONSISTENCY=1,3,5,7 \
-    arena.seed=55,89,144,233,377
+  -m 

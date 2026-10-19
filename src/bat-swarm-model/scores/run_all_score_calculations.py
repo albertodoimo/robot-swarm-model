@@ -196,7 +196,7 @@ def given_history_list_generate_score_files(
         data_dir + f"/summary_dataframe_job_{job_id}_run{run_id}.csv"
     )
 
-    return dataframe_score_summary
+    return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
 
 
 # if __name__ == "__main__":

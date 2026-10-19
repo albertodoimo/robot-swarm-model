@@ -39,7 +39,7 @@ from simulation.class_simulation import Simulation
 @hydra.main(
     version_base=None,
     config_path="../../Data/InputData/config",
-    config_name="slurm_config",
+    config_name="slurm_optimize_config",
 )
 def run_simulation(cfg: DictConfig) -> None:
     random.seed(cfg.arena.seed)
@@ -70,17 +70,21 @@ def run_simulation(cfg: DictConfig) -> None:
         f"job_number_{hydra_job_num}",
     )
 
-    given_history_list_generate_score_files(
-        history_list,
-        hydra_job_dir,
-        job_uuid,
-        hydra_job_num,
-        range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
+    df_summary, bat_bat_collision_counts, wall_collision_counts = (
+        given_history_list_generate_score_files(
+            history_list,
+            hydra_job_dir,
+            job_uuid,
+            hydra_job_num,
+            range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
+        )
     )
 
     for filepath in os.listdir(hydra_job_dir):
         if ".pkl" in filepath:
             os.remove(hydra_job_dir + "/" + filepath)
+
+    return bat_bat_collision_counts, wall_collision_counts
 
 
 if __name__ == "__main__":
