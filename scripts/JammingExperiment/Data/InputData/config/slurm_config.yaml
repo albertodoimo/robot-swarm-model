@@ -1,41 +1,11 @@
 defaults:
   - arena: default
   - bat: default
-  - override hydra/launcher: submitit_slurm
-  - override hydra/job_logging: colorlog
-  - override hydra/hydra_logging: colorlog
+  - override hydra/launcher: joblib
   - _self_
 
 hydra:
-  job:
-    name: dynamic_model_sweep
-
   launcher:
-    # Slurm resources PER sweep configuration / simulation.
-    partition: main
-    timeout_min: 1440  # 24 hours
-
-    nodes: 1
-    tasks_per_node: 1
-    cpus_per_task: 1
-
-    # Memory PER individual sweep run, in GB.
-    # Change based on what one simulation actually needs.
-    mem_gb: 32
-
-    name: ${hydra.job.name}
-
-    # Submitit logs, separate from Hydra run output.
-    submitit_folder: ${hydra.sweep.dir}/.submitit/%j
-
-    # Maximum simultaneous tasks in a Slurm array.
-    # Increase/decrease according to cluster limits and resource availability.
-    array_parallelism: 128
-
-    additional_parameters:
-      mail-type: ALL
-      mail-user: aditya.moger@uni-konstanz.de
-
-  sweep:
-    dir: ${hydra:runtime.cwd}/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}_${hydra:job.name}
-    subdir: ${hydra.job.num}
+    n_jobs: 128
+    batch_size: 1
+    # inner_max_num_threads: 1
