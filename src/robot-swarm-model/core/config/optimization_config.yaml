@@ -1,0 +1,37 @@
+defaults:
+  - arena: default
+  - agents: sonoro_default
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: nsgaii
+  - override hydra/launcher: joblib
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog
+  - _self_
+
+hydra:
+  sweep:
+    dir: /media/alberto/T7 Shield/Alberto Doimo/${hydra.job.name}/
+  sweeper:
+    # dir: /media/adityamoger/T7/${hydra.job.name}/${hydra.job.num}
+    sampler:
+      seed: 124
+      population_size:  30
+      mutation_prob: null
+      crossover_prob: 0.9
+      swapping_prob: 0.5
+      constraints_func: null
+    direction: [minimize, maximize]
+    storage: sqlite:///sonoro_sweep2.db
+    study_name: tes_params
+    n_trials: 500
+    n_jobs: 15
+    params:
+      # agents.sonoro.ROTATION_TIME_DELAY_CAP: range(0.012, 0.052, step=0.010)
+      agents.SPL_THRESHOLD_FOR_ATTRACTION: range(50, 70, step=20)
+      # agents.sonoro.SPL_THRESHOLD_FOR_REPULSION: range(65, 75, step=3)
+      # agents.sonoro.CONSISTENCY_TIME_DELAY_CAP: range(0.006, 0.024, step=0.006)
+      # agents.sonoro.ANGLE_RANGE_FOR_REPULSION: range(60, 90, step=10)
+      # agents.sonoro.ANGLE_RANGE_FOR_ATTRACTION: range(10, 40, step=10)
+      # agents.sonoro.BAT_ROTATION_SPEED: range(30, 70, step=10)
+  launcher:
+    n_jobs: 15

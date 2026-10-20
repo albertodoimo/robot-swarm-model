@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 
 sys.path.extend(
     [
-        "./src/bat-swarm-model/",
-        "./src/bat-swarm-model/core/",
-        "./src/bat-swarm-model/plot/",
+        "./src/robot-swarm-model/",
+        "./src/robot-swarm-model/core/",
+        "./src/robot-swarm-model/plot/",
     ]
 )
 from agents.class_sounds import (
