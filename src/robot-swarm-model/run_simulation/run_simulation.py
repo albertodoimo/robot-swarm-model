@@ -9,6 +9,11 @@ import numpy as np
 import omegaconf
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig
+from omegaconf import OmegaConf
+
+OmegaConf.register_new_resolver("eval", eval, replace=True)
+OmegaConf.register_new_resolver("div", lambda a, b: float(a) / float(b), replace=True)
+
 from tqdm import tqdm
 
 sys.path.extend(
@@ -69,10 +74,10 @@ def run_simulation(cfg: DictConfig) -> None:
         show_sounds=False,
         focal_bat=0,
         rows=1,
-        columns=2,
+        columns=3,
         modules=[
             "arena",
-            # "polarization_milling",
+            "polarization_milling",
             "info_text",
             # "ipi_radial",
             # "sum_radial",
