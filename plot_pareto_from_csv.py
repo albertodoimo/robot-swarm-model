@@ -26,9 +26,7 @@ import seaborn as sns
 if "ipykernel" in sys.modules:
     pio.renderers.default = "vscode"
 
-DEFAULT_SUMMARY_FILE = (
-    "/media/alberto/T7 Shield/Alberto Doimo/optimization_results/summary_all_jobs.csv"
-)
+DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/summary_all_jobs.csv"
 POLARIZATION_KEY = "mean local polarization, range 1.0"
 GLOBAL_POLARIZATION_KEY = "mean polarization"
 # scores (y) for the scores-vs-parameters plot: column name -> axis label
@@ -44,6 +42,8 @@ OPTIMIZED_PARAMETERS = [
     "BAT_SLOW_SPEED",
     "ANGLE_RANGE_FOR_REPULSION",
     "ANGLE_RANGE_FOR_ATTRACTION",
+    "NOISE_IN_CALL_RATE",
+    "ROTATION_CALL_RATE_PRODUCT",
 ]
 # marker shape per CALL_RATE value (in increasing order); 3d supports only these
 CALL_RATE_SYMBOLS = [

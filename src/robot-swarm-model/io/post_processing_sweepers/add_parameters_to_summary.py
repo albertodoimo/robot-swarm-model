@@ -34,7 +34,9 @@ sys.path.extend(
 
 from supporting_files.utilities import load_parameters
 
-DEFAULT_RESULTS_DIR = "/media/alberto/T7 Shield/Alberto Doimo/optimization_results"
+DEFAULT_RESULTS_DIR = (
+    "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26"
+)
 
 
 def add_parameters_to_summary(results_dir):
@@ -86,14 +88,27 @@ def merge_summary_files(results_dir, output_file=None):
         output_file = results_dir + "/summary_all_jobs.csv"
 
     summary_files = glob.glob(results_dir + "/*/summary_dataframe_job_*.csv")
-    merged_df = pd.concat(
-        (pd.read_csv(summary_file, index_col=0) for summary_file in summary_files),
-        ignore_index=True,
-    )
+    complete_summaries = []
+    incomplete_jobs = []
+    for summary_file in summary_files:
+        job_dir = os.path.dirname(summary_file)
+        parameters_df = load_parameters(job_dir + "/parameters_used.json")
+        summary_df = pd.read_csv(summary_file, index_col=0)
+
+        # the run stops once DISTANCE_CAP is travelled: less means it did not finish
+        if summary_df["distance travelled"].iloc[0] < parameters_df["DISTANCE_CAP"]:
+            incomplete_jobs.append(job_dir)
+            continue
+
+        complete_summaries.append(summary_df)
+
+    merged_df = pd.concat(complete_summaries, ignore_index=True)
     merged_df = merged_df.sort_values("job id", ignore_index=True)
     merged_df.to_csv(output_file, index=False)
 
-    print(f"merged {len(summary_files)} summary files into {output_file}")
+    print(f"merged {len(complete_summaries)} summary files into {output_file}")
+    for job_dir in incomplete_jobs:
+        print(f"skipped, distance travelled < DISTANCE_CAP: {job_dir}")
     return merged_df
 
 
