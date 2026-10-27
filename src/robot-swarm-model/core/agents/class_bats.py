@@ -110,6 +110,8 @@ class Bat:
         self.is_bat_reflective_to_sound = str2bool("yes")  #
 
         self.list_to_store_sounds = []  # track sounds heard by the agent
+        self.is_bat_rotating = False
+        self.log_distance_moved = 0
 
     def update(self, current_time, sound_objects, temporal_masking_file):
         """Function to update bats with time.
@@ -142,9 +144,11 @@ class Bat:
         """
         # move bat every step
         if self.speed != 0:
-            self.position += (
+            displacement_for_time_step = (
                 self.direction * self.speed * self.parameters_df["TIME_STEP"]
             )
+            self.position += displacement_for_time_step
+            self.log_distance_moved += displacement_for_time_step.magnitude()
         elif self.speed < 0:
             raise ValueError("Negative speed, impossible!")
 
@@ -165,10 +169,14 @@ class Bat:
                 self.direction.y *= -1
                 self.next_direction = self.direction
 
-        if self.parameters_df["ARENA_TYPE"] == "open":
+        elif self.parameters_df["ARENA_TYPE"] == "open":
             # in open case, the agents spawn at the other side of the wall based on direction
             self.position.x = self.position.x % self.parameters_df["ARENA_WIDTH"]
             self.position.y = self.position.y % self.parameters_df["ARENA_LENGTH"]
+        else:
+            raise ValueError(
+                "ARENA_TYPE should be either 'bounded' or 'open' in the parameters file."
+            )
 
     def emit_sounds(self, current_time, sound_objects):
         """Trigger sound emission by Bat.

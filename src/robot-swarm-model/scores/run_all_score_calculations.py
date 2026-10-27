@@ -8,9 +8,9 @@ from tqdm.rich import tqdm
 
 sys.path.extend(
     [
-        "./src/robot-swarm-model/",
-        "./src/robot-swarm-model/core/",
-        "./src/robot-swarm-model/plot/",
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
     ]
 )
 
@@ -22,6 +22,8 @@ from scores.milling_score import compute_milling
 from scores.nearest_neighbour_distance import compute_nearest_neighbour_distance
 from scores.polarization_score import compute_polarization
 from scores.space_occupied_scores import space_occupied_score
+
+# from scores.time_spent_rotating import compute_time_spent_rotating
 from supporting_files.utilities import load_parameters
 
 
@@ -95,12 +97,12 @@ def given_history_list_generate_score_files(
     job_id,
     range_of_distance_for_local_score,
 ):
-
+    distance_covered = np.min(history_lists[-1]["bat_distance_covered"])
     bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
         history_lists
     )
     parameters_df = load_parameters(data_dir + "/parameters_used.json")
-
+    duration = len(bat_positions_list)
     (
         wall_collision_counter,
         batbat_collision_counter,
@@ -162,6 +164,8 @@ def given_history_list_generate_score_files(
     list_of_score_summary = [
         [job_id],
         [run_id],
+        [duration],
+        [distance_covered],
         [batbat_collision_counter],
         [wall_collision_counter],
         [space_occupied_counter],
@@ -174,6 +178,8 @@ def given_history_list_generate_score_files(
     list_of_summary_keys = [
         "job id",
         "job uuid",
+        "duration",
+        "distance travelled",
         "interbat collision total",
         "wall collision total",
         "space_occupied",
@@ -186,13 +192,10 @@ def given_history_list_generate_score_files(
     list_of_score_summary.extend(list_of_local_polarization_summary)
     list_of_summary_keys.extend(keys_for_local_polarization_summary)
 
-    for key, value in parameters_df.items():
-        if key not in list_of_summary_keys:
-            list_of_summary_keys.append(key)
-            list_of_score_summary.append([value])
+    dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
 
-    dataframe_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
-    dataframe_score_summary = pd.DataFrame.from_dict(dataframe_score_summary)
+    merged_dict_with_params = dict_score_summary | parameters_df
+    dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
 
     dataframe_timeseries.to_csv(
         data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
@@ -204,9 +207,62 @@ def given_history_list_generate_score_files(
     return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
 
 
+def given_history_list_generate_score_files_for_sensitivity(
+    history_lists,
+    data_dir,
+    run_id,
+    job_id,
+    range_of_distance_for_local_score,
+):
+    distance_covered = history_lists[-1]["bat_distance_covered"][0]
+    bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
+        history_lists
+    )
+    parameters_df = load_parameters(data_dir + "/parameters_used.json")
+    duration = len(bat_positions_list)
+    (
+        wall_collision_counter,
+        batbat_collision_counter,
+        timeseries_cumulative_wall_collision,
+        timeseries_cumulative_bat_bat_collision,
+    ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
+    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
+    # time_spent_rotating_score = compute_time_spent_rotating(
+    #     history_lists, parameters_df
+    # )
+
+    list_of_score_summary = [
+        [job_id],
+        [run_id],
+        [duration],
+        [distance_covered],
+        [batbat_collision_counter],
+        [wall_collision_counter],
+        [space_occupied_counter],
+    ]
+
+    list_of_summary_keys = [
+        "job id",
+        "job uuid",
+        "duration",
+        "distance travelled",
+        "interbat collision total",
+        "wall collision total",
+        "space_occupied",
+    ]
+
+    dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
+
+    merged_dict_with_params = dict_score_summary | parameters_df
+    dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
+
+    dataframe_score_summary.to_csv(data_dir + f"/summary_dataframe_job_{job_id}.csv")
+    return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
+
+
 # if __name__ == "__main__":
 
-#     output_dir = r"/home/adityamoger/Documents/GitHub/robot-swarm-model/multirun/2026-09-02/17-52-52/15/data/"
+#     output_dir = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-09-02/17-52-52/15/data/"
 #     bat_positions_raw = load_history_dump(output_dir)
 #     bat_positions, bat_directions = filter_bat_positions_from_history(bat_positions_raw)
 #     x = np.array(bat_directions, dtype=np.half)

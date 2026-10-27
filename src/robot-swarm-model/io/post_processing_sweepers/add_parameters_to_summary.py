@@ -9,6 +9,9 @@ scores of a run. The csv is overwritten in place.
 Columns already present in the csv are left untouched, so scores are never
 overwritten and the script can safely be run more than once.
 
+Afterwards all summary csv files are merged into a single
+results_dir/summary_all_jobs.csv (one header, one row per job).
+
 Usage (from the repository root):
     python src/robot-swarm-model/io/post_processing_sweepers/add_parameters_to_summary.py <results_dir>
 
@@ -66,6 +69,35 @@ def add_parameters_to_summary(results_dir):
         print(f"no parameters_used.json in {job_dir}")
 
 
+def merge_summary_files(results_dir, output_file=None):
+    """Merges the summary_dataframe csv of every job folder into one csv,
+    keeping a single header (pd.concat as in
+    https://stackoverflow.com/a/30335657).
+
+    Args:
+        results_dir (string): directory containing one folder per job.
+        output_file (string, optional): path of the merged csv. Defaults to
+            results_dir/summary_all_jobs.csv.
+
+    Returns:
+        DataFrame: merged summary, one row per job.
+    """
+    if output_file is None:
+        output_file = results_dir + "/summary_all_jobs.csv"
+
+    summary_files = glob.glob(results_dir + "/*/summary_dataframe_job_*.csv")
+    merged_df = pd.concat(
+        (pd.read_csv(summary_file, index_col=0) for summary_file in summary_files),
+        ignore_index=True,
+    )
+    merged_df = merged_df.sort_values("job id", ignore_index=True)
+    merged_df.to_csv(output_file, index=False)
+
+    print(f"merged {len(summary_files)} summary files into {output_file}")
+    return merged_df
+
+
 if __name__ == "__main__":
     results_dir = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RESULTS_DIR
-    add_parameters_to_summary(results_dir)
+    # add_parameters_to_summary(results_dir)
+    merge_summary_files(results_dir)

@@ -72,7 +72,13 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
     print(cfg)
     # print(hydra_parent_dir)
 
-    sim = Simulation(cfg, OUTPUT_DIR, store_history=True, store_data_for_plotting=True)
+    sim = Simulation(
+        cfg,
+        OUTPUT_DIR,
+        store_history=True,
+        store_data_for_plotting=True,
+        termination_criteria="distance",
+    )
     sim.run()
 
     history_list = stitch_together_pickle_history_lists_and_store(
@@ -86,7 +92,7 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
         hydra_job_dir,
         job_uuid,
         hydra_job_num,
-        range_of_distance_for_local_score=np.arange(0.5, 2, 0.5),
+        range_of_distance_for_local_score=np.arange(0.5, 1.5, 0.5),
     )
 
     bat_positions_raw, parameters_df, *_ = stitch_together_history_lists(OUTPUT_DIR)
@@ -97,8 +103,6 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
         timeseries_wall_collision,
         timeseries_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions, parameters_df)
-    total_collision_rate = (wall_collision + bat_bat_collision) / cfg.arena.SIM_DURATION
-    total_collision_rate = total_collision_rate / cfg.arena.NUM_BATS
     if len(bat_positions_raw) < 1 / cfg.arena.TIME_STEP * cfg.arena.SIM_DURATION:
         return np.inf, -np.inf
     pol_time_series = [
@@ -136,7 +140,7 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
     #     running_median_local_polarization[0],
     # )
 
-    collision_score = bat_bat_collision / cfg.arena.SIM_DURATION
+    collision_score = bat_bat_collision
     print(collision_score, local_polarization_steady)
 
     for filepath in os.listdir(hydra_job_dir):
