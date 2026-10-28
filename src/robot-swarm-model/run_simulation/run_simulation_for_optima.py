@@ -51,7 +51,7 @@ from numpy.lib.stride_tricks import sliding_window_view
 @hydra.main(
     version_base=None, config_path="../core/config/", config_name="optimization_config"
 )
-def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
+def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
     random.seed(cfg.arena.seed)
     np.random.seed(cfg.arena.seed)
     random.seed(cfg.arena.seed)
@@ -104,7 +104,7 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
         timeseries_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions, parameters_df)
     if len(bat_positions_raw) < 1 / cfg.arena.TIME_STEP * cfg.arena.SIM_DURATION:
-        return np.inf, -np.inf
+        return np.inf, -np.inf, -np.inf
     pol_time_series = [
         compute_polarization(bat_direction_frame)
         for bat_direction_frame in bat_directions
@@ -121,14 +121,16 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
             bat_positions[i],
             parameters_df,
             1,
-            "median",
+            "mean",
         )[0]
         for i, bat_directions_frame in enumerate(bat_directions)
     ]
 
-    local_polarization_steady = local_polarization_list[1000:]
+    # skip the first 30 s of simulated time (one history frame per TIME_STEP)
+    transient_frames = int(30 / cfg.arena.TIME_STEP)
+    local_polarization_steady = local_polarization_list[transient_frames:]
 
-    max_pol_of_group = np.max(pol_time_series[1000:])
+    mean_pol_of_group = np.mean(pol_time_series[transient_frames:])
     # mena_milling_of_group = np.mean(milling_time_series)
     # print(total_collision_rate, max_pol_of_group, mena_milling_of_group)
 
@@ -141,13 +143,15 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float]:
     # )
 
     collision_score = bat_bat_collision
-    print(collision_score, local_polarization_steady)
+    # print(collision_score, local_polarization_steady)
 
     for filepath in os.listdir(hydra_job_dir):
-        if ".pkl" in filepath:
+        if ".pkl" in filepath or ".json" in filepath:
+            os.remove(hydra_job_dir + "/" + filepath)
+        elif "_initial.pkl" in filepath:
             os.remove(hydra_job_dir + "/" + filepath)
 
-    return collision_score, np.mean(local_polarization_steady)
+    return collision_score, np.mean(local_polarization_steady), mean_pol_of_group
 
 
 if __name__ == "__main__":

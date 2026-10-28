@@ -16,17 +16,20 @@ or, to see the interactive plot inside VS Code: right click in the editor >
 import sys
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 import seaborn as sns
+from plotly.subplots import make_subplots
 
 # inside a Jupyter kernel (VS Code Interactive Window) show plotly inline
 if "ipykernel" in sys.modules:
     pio.renderers.default = "vscode"
 
-DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/summary_all_jobs.csv"
+# DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/summary_all_jobs.csv"
+DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/simulation/optimization_results_2026_10_27/summary_all_jobs.csv"
 POLARIZATION_KEY = "mean local polarization, range 1.0"
 GLOBAL_POLARIZATION_KEY = "mean polarization"
 # scores (y) for the scores-vs-parameters plot: column name -> axis label
@@ -65,7 +68,9 @@ def plot_interactive_pareto(summary_df, pareto_df, output_file):
     polarization): marker shape = CALL_RATE, colour = NUM_BATS, Pareto points
     large and opaque, all other jobs small and faded. Hovering a point shows
     its job id and the optimized parameters. Saved as a standalone html file."""
-    hover_columns = ["job id"] + OPTIMIZED_PARAMETERS
+    hover_columns = (
+        ["job id"] + OPTIMIZED_PARAMETERS + ["duration (min)", "distance travelled"]
+    )
     hovertemplate = (
         "collision rate: %{x:.3f}<br>"
         "local polarization: %{y:.3f}<br>"
@@ -157,11 +162,159 @@ def plot_interactive_pareto(summary_df, pareto_df, output_file):
     fig.show()
 
 
+def plot_pareto_per_group_size(summary_df, output_file):
+    """One 3d Pareto plot per NUM_BATS value, side by side in one html file.
+    Each Pareto front is computed only among the jobs with that group size
+    (minimize collision rate, maximize local and global polarization).
+    Marker shape = CALL_RATE, Pareto points large and opaque, all other jobs
+    small and faded, red surface through the Pareto points. All panels share
+    the same axis ranges. Hovering a point shows its job id and the optimized
+    parameters."""
+    hover_columns = (
+        ["job id"] + OPTIMIZED_PARAMETERS + ["duration (min)", "distance travelled"]
+    )
+    hovertemplate = (
+        "collision rate: %{x:.3f}<br>"
+        "local polarization: %{y:.3f}<br>"
+        "polarization: %{z:.3f}<br>"
+        + "<br>".join(
+            f"{column}: %{{customdata[{i}]}}" for i, column in enumerate(hover_columns)
+        )
+        + "<extra></extra>"
+    )
+
+    num_bats_values = sorted(summary_df["NUM_BATS"].unique())
+    call_rate_values = sorted(summary_df["CALL_RATE"].unique())
+    call_rate_symbols = dict(zip(call_rate_values, CALL_RATE_SYMBOLS))
+
+    fig = make_subplots(
+        rows=1,
+        cols=len(num_bats_values),
+        specs=[[{"type": "scene"}] * len(num_bats_values)],
+        subplot_titles=[f"{num_bats} robots" for num_bats in num_bats_values],
+        horizontal_spacing=0.01,
+    )
+    for col, (color, num_bats) in enumerate(
+        zip(NUM_BATS_COLORS, num_bats_values), start=1
+    ):
+        group_df = summary_df[summary_df["NUM_BATS"] == num_bats].copy()
+        group_df["pareto"] = pareto_mask(
+            np.column_stack(
+                [
+                    group_df["collision rate"],
+                    -group_df[POLARIZATION_KEY],
+                    -group_df[GLOBAL_POLARIZATION_KEY],
+                ]
+            )
+        )
+
+        for call_rate in call_rate_values:
+            for is_pareto in (False, True):
+                subset = group_df[
+                    (group_df["CALL_RATE"] == call_rate)
+                    & (group_df["pareto"] == is_pareto)
+                ]
+                if subset.empty:
+                    continue
+                fig.add_trace(
+                    go.Scatter3d(
+                        x=subset["collision rate"],
+                        y=subset[POLARIZATION_KEY],
+                        z=subset[GLOBAL_POLARIZATION_KEY],
+                        mode="markers",
+                        marker=dict(
+                            size=5 if is_pareto else 3,
+                            symbol=call_rate_symbols[call_rate],
+                            color=color,
+                        ),
+                        opacity=1.0 if is_pareto else 0.3,
+                        name=f"call rate {call_rate}",
+                        legendgroup=f"call rate {call_rate}",
+                        showlegend=False,
+                        customdata=subset[hover_columns],
+                        hovertemplate=hovertemplate,
+                    ),
+                    row=1,
+                    col=col,
+                )
+
+        # Pareto frontier of this group size
+        pareto_df = group_df[group_df["pareto"]]
+        if len(pareto_df) >= 3:
+            fig.add_trace(
+                go.Mesh3d(
+                    x=pareto_df["collision rate"],
+                    y=pareto_df[POLARIZATION_KEY],
+                    z=pareto_df[GLOBAL_POLARIZATION_KEY],
+                    color="red",
+                    opacity=0.2,
+                    hoverinfo="skip",
+                    name="Pareto frontier",
+                    legendgroup="pareto frontier",
+                    showlegend=(col == 1),
+                ),
+                row=1,
+                col=col,
+            )
+        print(f"{num_bats} robots: {len(pareto_df)} Pareto jobs of {len(group_df)}")
+
+    # legend-only entries for the CALL_RATE shapes
+    for call_rate in call_rate_values:
+        fig.add_trace(
+            go.Scatter3d(
+                x=[None],
+                y=[None],
+                z=[None],
+                mode="markers",
+                marker=dict(size=5, symbol=call_rate_symbols[call_rate], color="gray"),
+                name=f"call rate {call_rate}",
+                legendgroup=f"call rate {call_rate}",
+                legendgrouptitle_text=(
+                    "CALL_RATE (shape)" if call_rate == call_rate_values[0] else None
+                ),
+            ),
+            row=1,
+            col=1,
+        )
+
+    # same axes in every panel, so the group sizes can be compared
+    scene = dict(
+        xaxis=dict(
+            title="Collision rate (collisions / s)",
+            range=[0, summary_df["collision rate"].max()],
+        ),
+        yaxis=dict(
+            title="Local polarization (range 1.0)",
+            range=[
+                summary_df[POLARIZATION_KEY].min(),
+                summary_df[POLARIZATION_KEY].max(),
+            ],
+        ),
+        zaxis=dict(
+            title="Polarization",
+            range=[
+                summary_df[GLOBAL_POLARIZATION_KEY].min(),
+                summary_df[GLOBAL_POLARIZATION_KEY].max(),
+            ],
+        ),
+    )
+    fig.update_scenes(scene)
+    fig.update_layout(
+        title="Pareto front per group size",
+        height=700,
+        width=700 * len(num_bats_values),
+        legend_title_text="",
+    )
+    fig.write_html(output_file)
+    fig.show()
+
+
 def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
-    """One subplot per optimized parameter, each with a box per score for
-    every parameter value (box: 25-75th percentile and median, whiskers:
-    10-90th percentile), every job as a point and a line through the mean.
-    Saved as a pdf."""
+    """One subplot per optimized parameter, each with a seaborn raincloud per
+    score for every parameter value: half violin (cloud) on the right, box in
+    the centre (25-75th percentile and median, whiskers 10-90th percentile),
+    every job as a jittered point (rain) on the left, and a line through the
+    mean. Saved as a pdf."""
     scores_long_df = summary_df.melt(
         id_vars=OPTIMIZED_PARAMETERS,
         value_vars=list(SCORES),
@@ -170,11 +323,19 @@ def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
     )
     scores_long_df["score"] = scores_long_df["score"].map(SCORES)
     palette = dict(zip(SCORES.values(), SCORE_COLORS))
-    box_width = 0.8
+    # total width of the scores at one parameter value, and of one score's slot
+    group_width = 0.8
+    slot_width = group_width / len(SCORES)
 
+    # grid with about as many columns as rows
+    n_cols = int(np.ceil(np.sqrt(len(OPTIMIZED_PARAMETERS))))
+    n_rows = int(np.ceil(len(OPTIMIZED_PARAMETERS) / n_cols))
     fig, axes = plt.subplots(
-        len(OPTIMIZED_PARAMETERS), 1, figsize=(12, 4 * len(OPTIMIZED_PARAMETERS))
+        n_rows, n_cols, figsize=(6 * n_cols, 4 * n_rows), sharey=True, squeeze=False
     )
+    axes = axes.flatten()
+    for ax in axes[len(OPTIMIZED_PARAMETERS) :]:
+        ax.set_visible(False)
     for ax, parameter in zip(axes, OPTIMIZED_PARAMETERS):
         common = dict(
             data=scores_long_df,
@@ -184,30 +345,69 @@ def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
             hue_order=list(SCORES.values()),
             palette=palette,
             ax=ax,
+            legend=False,
         )
+
+        # cloud: seaborn violins, then each one cut to its right half
+        n_collections = len(ax.collections)
+        sns.violinplot(
+            **common,
+            width=group_width,
+            cut=0,
+            inner=None,
+            density_norm="width",
+            linewidth=0,
+            alpha=0.4,
+        )
+        for body in ax.collections[n_collections:]:
+            for path in body.get_paths():
+                x = path.vertices[:, 0]
+                path.vertices[:, 0] = np.clip(x, (x.min() + x.max()) / 2, np.inf)
+
+        # box: 25-75th percentile and median, whiskers 10-90th percentile
         sns.boxplot(
             **common,
+            width=group_width,
+            gap=0.85,
             whis=(10, 90),
-            width=box_width,
             showfliers=False,
             fill=False,
         )
-        sns.stripplot(**common, dodge=True, size=2, alpha=0.4, legend=False)
-        # dodge so the mean points sit on the centre of their box
+
+        # rain: every job, jittered and moved to the left of the box
+        n_collections = len(ax.collections)
+        sns.stripplot(**common, dodge=True, jitter=0.04, size=2, alpha=0.4, linewidth=0)
+        for points in ax.collections[n_collections:]:
+            offsets = points.get_offsets()
+            offsets[:, 0] -= 0.3 * slot_width
+            points.set_offsets(offsets)
+
+        # mean of each parameter value, through the box centres
         sns.pointplot(
             **common,
             estimator="mean",
             errorbar=None,
-            dodge=box_width * (len(SCORES) - 1) / len(SCORES),
-            markersize=4,
+            dodge=group_width - slot_width,
+            markersize=3,
             linewidth=1.5,
-            legend=False,
         )
+
         ax.set_xlabel(parameter)
         ax.set_ylabel("score")
-        ax.legend(title="", loc="upper right")
 
-    fig.suptitle("Scores vs optimized parameters")
+    # one legend for the whole figure
+    handles = [Patch(color=color, alpha=0.6) for color in SCORE_COLORS]
+    labels = list(SCORES.values())
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        ncol=len(SCORES),
+        bbox_to_anchor=(0.5, 1.0),
+        frameon=False,
+    )
+
+    fig.suptitle("Scores vs optimized parameters", y=1.03)
     fig.tight_layout()
     fig.savefig(output_file, bbox_inches="tight")
     plt.show()
@@ -248,6 +448,10 @@ if __name__ == "__main__":
     summary_df["normalized collision rate"] = (
         summary_df["collision rate"] / summary_df["collision rate"].max()
     )
+    # duration is saved in frames (one per TIME_STEP)
+    summary_df["duration (min)"] = (
+        summary_df["duration"] * summary_df["TIME_STEP"] / 60
+    ).round(2)
     collision = summary_df["collision rate"].to_numpy()
     polarization = summary_df[POLARIZATION_KEY].to_numpy()
     global_polarization = summary_df[GLOBAL_POLARIZATION_KEY].to_numpy()
@@ -270,7 +474,7 @@ if __name__ == "__main__":
     )
     pareto_df.to_csv(summary_file.replace(".csv", "_pareto.csv"), index=False)
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots()
     ax.scatter(collision, polarization, alpha=0.4, color="gray", label="All jobs")
     ax.plot(
         pareto_2d_df["collision rate"],
@@ -292,6 +496,9 @@ if __name__ == "__main__":
 
     plot_interactive_pareto(
         summary_df, pareto_df, summary_file.replace(".csv", "_pareto.html")
+    )
+    plot_pareto_per_group_size(
+        summary_df, summary_file.replace(".csv", "_pareto_per_group_size.html")
     )
     plot_scores_vs_parameters(
         summary_df,

@@ -34,8 +34,11 @@ sys.path.extend(
 
 from supporting_files.utilities import load_parameters
 
+# DEFAULT_RESULTS_DIR = (
+#     "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26"
+# )
 DEFAULT_RESULTS_DIR = (
-    "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26"
+    "/media/alberto/T7 Shield/Alberto Doimo/simulation/optimization_results_2026_10_27"
 )
 
 

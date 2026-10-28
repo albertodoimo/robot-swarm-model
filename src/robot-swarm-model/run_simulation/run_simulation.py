@@ -74,10 +74,10 @@ def run_simulation(cfg: DictConfig) -> None:
         show_sounds=False,
         focal_bat=0,
         rows=1,
-        columns=3,
+        columns=2,
         modules=[
             "arena",
-            "polarization_milling",
+            # "polarization_milling",
             "info_text",
             # "ipi_radial",
             # "sum_radial",

@@ -15,30 +15,31 @@ hydra:
   sweeper:
     # dir: /media/adityamoger/T7/${hydra.job.name}/${hydra.job.num}
     sampler:
+      _target_: optuna.samplers.NSGAIIISampler
       seed: 124
       population_size:  30
       mutation_prob: null
       crossover_prob: 0.9
       swapping_prob: 0.5
       constraints_func: null
-    direction: [minimize, maximize]
-    storage: sqlite:///sonoro_sweep4.db
+      dividing_parameter: 6
+    direction: [minimize, maximize, maximize]
+    storage: sqlite:///sonoro_sweep5.db
     study_name: tes_params
-    n_trials: 2000
-    n_jobs: 15
+    n_trials: 400
+    n_jobs: 14
     params:
       # agents.sonoro.ROTATION_TIME_DELAY_CAP: range(0.012, 0.052, step=0.010)
       # agents.SPL_THRESHOLD_FOR_ATTRACTION: range(50, 70, step=10)
       agents.CALL_RATE: range(3, 5, step=1)
       arena.NUM_BATS: choice(5,7,10)
-      # agents.BAT_SLOW_SPEED: range(0.03, 0.05, step=0.01)
+      agents.BAT_SLOW_SPEED: range(0.03, 0.05, step=0.01)
       # agents.sonoro.SPL_THRESHOLD_FOR_REPULSION: range(65, 75, step=3)  
       # agents.sonoro.CONSISTENCY_TIME_DELAY_CAP: range(0.006, 0.024, step=0.006)
-      agents.ANGLE_RANGE_FOR_REPULSION: range(60, 80, step=10)
-      agents.ANGLE_RANGE_FOR_ATTRACTION: range(20, 40, step=10)
+      agents.ANGLE_RANGE_FOR_REPULSION: range(70, 80, step=10)
+      agents.ANGLE_RANGE_FOR_ATTRACTION: range(10, 30, step=10)
       # agents.sonoro.BAT_ROTATION_SPEED: range(30, 70, step=10)
       agents.NOISE_IN_CALL_RATE: range(0.03, 0.07, step=0.02)
       agents.ROTATION_CALL_RATE_PRODUCT: choice(400, 450)
-      arena.seed: choice(20, 50, 100, 150)
   launcher:
-    n_jobs: 15
+    n_jobs: 14
