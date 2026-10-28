@@ -3,7 +3,7 @@ defaults:
   - agents: sonoro_default
   - override hydra/sweeper: optuna
   - override hydra/sweeper/sampler: nsgaii
-  - override hydra/launcher: joblib
+  - override hydra/launcher: joblib 
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
   - _self_
@@ -11,18 +11,17 @@ defaults:
 hydra:
   mode: MULTIRUN
   sweep:
-    dir: /media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/
+  #   dir: /media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/
+    dir: ./optimization_results_2026_10_28/
   sweeper:
     # dir: /media/adityamoger/T7/${hydra.job.name}/${hydra.job.num}
     sampler:
-      _target_: optuna.samplers.NSGAIIISampler
       seed: 124
-      population_size:  30
+      population_size: 30
       mutation_prob: null
       crossover_prob: 0.9
       swapping_prob: 0.5
       constraints_func: null
-      dividing_parameter: 6
     direction: [minimize, maximize, maximize]
     storage: sqlite:///sonoro_sweep5.db
     study_name: tes_params

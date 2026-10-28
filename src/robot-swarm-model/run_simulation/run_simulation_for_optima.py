@@ -103,7 +103,13 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
         timeseries_wall_collision,
         timeseries_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions, parameters_df)
-    if len(bat_positions_raw) < 1 / cfg.arena.TIME_STEP * cfg.arena.SIM_DURATION:
+    # the run stops once the slowest robot travels DISTANCE_CAP: less means it crashed
+    distance_covered = np.min(history_list[-1]["bat_distance_covered"])
+    transient_frames = int(30 / cfg.arena.TIME_STEP)
+    if (
+        distance_covered < cfg.arena.DISTANCE_CAP
+        or len(bat_positions_raw) <= transient_frames
+    ):
         return np.inf, -np.inf, -np.inf
     pol_time_series = [
         compute_polarization(bat_direction_frame)
@@ -127,7 +133,6 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
     ]
 
     # skip the first 30 s of simulated time (one history frame per TIME_STEP)
-    transient_frames = int(30 / cfg.arena.TIME_STEP)
     local_polarization_steady = local_polarization_list[transient_frames:]
 
     mean_pol_of_group = np.mean(pol_time_series[transient_frames:])
