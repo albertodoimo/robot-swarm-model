@@ -2,7 +2,7 @@ defaults:
   - arena: default
   - agents: sonoro_default
   - override hydra/sweeper: optuna
-  - override hydra/sweeper/sampler: nsgaii
+  - override hydra/sweeper/sampler: grid
   - override hydra/launcher: joblib 
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
@@ -15,30 +15,33 @@ hydra:
     dir: ./optimization_results_2026_10_28/
   sweeper:
     # dir: /media/adityamoger/T7/${hydra.job.name}/${hydra.job.num}
+    # sampler:
+    #   seed: 124
+    #   population_size: 30
+    #   mutation_prob: null
+    #   crossover_prob: 0.9
+    #   swapping_prob: 0.5
+    #   constraints_func: null
+    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     sampler:
-      seed: 124
-      population_size: 30
-      mutation_prob: null
-      crossover_prob: 0.9
-      swapping_prob: 0.5
-      constraints_func: null
-    direction: [minimize, maximize, maximize]
+      _target_: optuna.samplers.GridSampler
+    # direction: [minimize, maximize, maximize]
     storage: sqlite:///sonoro_sweep5.db
-    study_name: tes_params
-    n_trials: 400
+    study_name: grid
+    n_trials: 648
     n_jobs: 14
     params:
       # agents.sonoro.ROTATION_TIME_DELAY_CAP: range(0.012, 0.052, step=0.010)
       # agents.SPL_THRESHOLD_FOR_ATTRACTION: range(50, 70, step=10)
-      agents.CALL_RATE: range(3, 5, step=1)
+      agents.CALL_RATE: choice(3, 4, 5)
       arena.NUM_BATS: choice(5,7,10)
-      agents.BAT_SLOW_SPEED: range(0.03, 0.05, step=0.01)
+      agents.BAT_SLOW_SPEED: choice(0.03, 0.04, 0.05)
       # agents.sonoro.SPL_THRESHOLD_FOR_REPULSION: range(65, 75, step=3)  
       # agents.sonoro.CONSISTENCY_TIME_DELAY_CAP: range(0.006, 0.024, step=0.006)
-      agents.ANGLE_RANGE_FOR_REPULSION: range(70, 80, step=10)
-      agents.ANGLE_RANGE_FOR_ATTRACTION: range(10, 30, step=10)
+      agents.ANGLE_RANGE_FOR_REPULSION: choice(70, 80)
+      agents.ANGLE_RANGE_FOR_ATTRACTION: choice(10, 20, 30)
       # agents.sonoro.BAT_ROTATION_SPEED: range(30, 70, step=10)
-      agents.NOISE_IN_CALL_RATE: range(0.03, 0.07, step=0.02)
+      agents.NOISE_IN_CALL_RATE: choice(0.05, 0.07)
       agents.ROTATION_CALL_RATE_PRODUCT: choice(400, 450)
   launcher:
     n_jobs: 14

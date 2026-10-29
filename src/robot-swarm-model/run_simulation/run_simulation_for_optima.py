@@ -51,9 +51,7 @@ from numpy.lib.stride_tricks import sliding_window_view
 @hydra.main(
     version_base=None, config_path="../core/config/", config_name="optimization_config"
 )
-def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
-    random.seed(cfg.arena.seed)
-    np.random.seed(cfg.arena.seed)
+def run_simulation_w_score_calcs(cfg: DictConfig) -> float:
     random.seed(cfg.arena.seed)
     np.random.seed(cfg.arena.seed)
 
@@ -110,7 +108,8 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
         distance_covered < cfg.arena.DISTANCE_CAP
         or len(bat_positions_raw) <= transient_frames
     ):
-        return np.inf, -np.inf, -np.inf
+        return np.inf
+
     pol_time_series = [
         compute_polarization(bat_direction_frame)
         for bat_direction_frame in bat_directions
@@ -151,12 +150,12 @@ def run_simulation_w_score_calcs(cfg: DictConfig) -> Tuple[float, float, float]:
     # print(collision_score, local_polarization_steady)
 
     for filepath in os.listdir(hydra_job_dir):
-        if ".pkl" in filepath or ".json" in filepath:
+        if ".pkl" in filepath:
             os.remove(hydra_job_dir + "/" + filepath)
         elif "_initial.pkl" in filepath:
             os.remove(hydra_job_dir + "/" + filepath)
 
-    return collision_score, np.mean(local_polarization_steady), mean_pol_of_group
+    return collision_score
 
 
 if __name__ == "__main__":
