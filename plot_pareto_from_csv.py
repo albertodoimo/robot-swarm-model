@@ -29,7 +29,8 @@ if "ipykernel" in sys.modules:
     pio.renderers.default = "vscode"
 
 # DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/optimization_results_2026_10_26/summary_all_jobs.csv"
-DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/simulation/optimization_results_2026_10_27/summary_all_jobs.csv"
+# DEFAULT_SUMMARY_FILE = "/media/alberto/T7 Shield/Alberto Doimo/simulation/optimization_results_2026_10_28/summary_all_jobs.csv"
+DEFAULT_SUMMARY_FILE = "/home/alberto/Documents/ActiveSensingCollectives_lab/Swarm_simulation/robot-swarm-model/optimization_results_2026_10_28/summary_all_jobs_with_resume.csv"
 POLARIZATION_KEY = "mean local polarization, range 1.0"
 GLOBAL_POLARIZATION_KEY = "mean polarization"
 # scores (y) for the scores-vs-parameters plot: column name -> axis label
@@ -61,6 +62,8 @@ CALL_RATE_SYMBOLS = [
 ]
 # colour per NUM_BATS value (in increasing order)
 NUM_BATS_COLORS = ["#1f77b4", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b"]
+# font size of all text in the per-group-size plot
+TEXT_SIZE = 14
 
 
 def plot_interactive_pareto(summary_df, pareto_df, output_file):
@@ -157,6 +160,7 @@ def plot_interactive_pareto(summary_df, pareto_df, output_file):
             zaxis_title="Mean polarization",
         ),
         legend_title_text="",
+        font=dict(size=TEXT_SIZE),
     )
     fig.write_html(output_file)
     fig.show()
@@ -299,22 +303,24 @@ def plot_pareto_per_group_size(summary_df, output_file):
         ),
     )
     fig.update_scenes(scene)
+    # subplot titles are annotations with their own font size
+    fig.update_annotations(font_size=TEXT_SIZE)
     fig.update_layout(
         title="Pareto front per group size",
-        height=700,
-        width=700 * len(num_bats_values),
+        # height=700,
+        # width=700 * len(num_bats_values),
         legend_title_text="",
+        font=dict(size=TEXT_SIZE),
     )
     fig.write_html(output_file)
     fig.show()
 
 
 def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
-    """One subplot per optimized parameter, each with a seaborn raincloud per
-    score for every parameter value: half violin (cloud) on the right, box in
-    the centre (25-75th percentile and median, whiskers 10-90th percentile),
-    every job as a jittered point (rain) on the left, and a line through the
-    mean. Saved as a pdf."""
+    """One subplot per optimized parameter, each a seaborn ridge plot with the
+    scores on x and one ridge per parameter value on y: for every score its
+    own ridge (violin cut to its upper half), every job as a jittered point
+    below the ridge, and a line through the means. Saved as a pdf."""
     scores_long_df = summary_df.melt(
         id_vars=OPTIMIZED_PARAMETERS,
         value_vars=list(SCORES),
@@ -323,32 +329,41 @@ def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
     )
     scores_long_df["score"] = scores_long_df["score"].map(SCORES)
     palette = dict(zip(SCORES.values(), SCORE_COLORS))
-    # total width of the scores at one parameter value, and of one score's slot
-    group_width = 0.8
+    # height taken by the ridges of one parameter value and by one score's
+    # ridge; peak height of each ridge and offset of its points below it
+    group_width = 0.9
     slot_width = group_width / len(SCORES)
+    ridge_height = 0.8 * slot_width
+    rain_offset = 0.12 * slot_width
 
     # grid with about as many columns as rows
     n_cols = int(np.ceil(np.sqrt(len(OPTIMIZED_PARAMETERS))))
     n_rows = int(np.ceil(len(OPTIMIZED_PARAMETERS) / n_cols))
     fig, axes = plt.subplots(
-        n_rows, n_cols, figsize=(6 * n_cols, 4 * n_rows), sharey=True, squeeze=False
+        n_rows, n_cols, figsize=(6 * n_cols, 4 * n_rows), squeeze=False
     )
     axes = axes.flatten()
     for ax in axes[len(OPTIMIZED_PARAMETERS) :]:
         ax.set_visible(False)
     for ax, parameter in zip(axes, OPTIMIZED_PARAMETERS):
+        # largest parameter value on top
+        order = sorted(summary_df[parameter].unique(), reverse=True)
         common = dict(
             data=scores_long_df,
-            x=parameter,
-            y="value",
+            x="value",
+            y=parameter,
+            order=order,
             hue="score",
             hue_order=list(SCORES.values()),
             palette=palette,
+            orient="h",
             ax=ax,
             legend=False,
         )
 
-        # cloud: seaborn violins, then each one cut to its right half
+        # ridges: one seaborn violin per score on its own baseline, cut to its
+        # upper half and stretched to ridge_height (the categorical y axis
+        # points down)
         n_collections = len(ax.collections)
         sns.violinplot(
             **common,
@@ -357,32 +372,32 @@ def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
             inner=None,
             density_norm="width",
             linewidth=0,
-            alpha=0.4,
+            alpha=0.3,
         )
         for body in ax.collections[n_collections:]:
+            color = body.get_facecolor()[0][:3]
             for path in body.get_paths():
-                x = path.vertices[:, 0]
-                path.vertices[:, 0] = np.clip(x, (x.min() + x.max()) / 2, np.inf)
+                y = path.vertices[:, 1]
+                baseline = (y.min() + y.max()) / 2
+                y = np.clip(y, -np.inf, baseline)
+                path.vertices[:, 1] = baseline - (baseline - y) * ridge_height / (
+                    baseline - y.min()
+                )
+                ax.hlines(baseline, 0, 1, color=color, linewidth=0.8)
+            # outline in the ridge colour
+            body.set_edgecolor(color)
+            body.set_linewidth(1.2)
 
-        # box: 25-75th percentile and median, whiskers 10-90th percentile
-        sns.boxplot(
-            **common,
-            width=group_width,
-            gap=0.85,
-            whis=(10, 90),
-            showfliers=False,
-            fill=False,
-        )
-
-        # rain: every job, jittered and moved to the left of the box
+        # rain: every job, jittered just below its ridge
         n_collections = len(ax.collections)
-        sns.stripplot(**common, dodge=True, jitter=0.04, size=2, alpha=0.4, linewidth=0)
+        sns.stripplot(**common, dodge=True, jitter=0.02, size=2, alpha=0.4, linewidth=0)
         for points in ax.collections[n_collections:]:
             offsets = points.get_offsets()
-            offsets[:, 0] -= 0.3 * slot_width
+            offsets[:, 1] += rain_offset
             points.set_offsets(offsets)
 
-        # mean of each parameter value, through the box centres
+        # mean of each parameter value on its ridge's baseline, connected
+        # across the parameter values
         sns.pointplot(
             **common,
             estimator="mean",
@@ -392,8 +407,14 @@ def plot_scores_vs_parameters(summary_df, pareto_df, output_file):
             linewidth=1.5,
         )
 
-        ax.set_xlabel(parameter)
-        ax.set_ylabel("score")
+        # down to the last value's bottom slot, up to the first ridge's peak
+        ax.set_ylim(len(order) - 0.5, -(group_width - slot_width) / 2 - ridge_height)
+        ax.set_xlabel("score")
+        ax.set_ylabel(parameter)
+        # all scores range 0-1
+        ax.set_xlim(0, 1)
+        ax.tick_params(axis="y", length=0)
+        sns.despine(ax=ax, left=True)
 
     # one legend for the whole figure
     handles = [Patch(color=color, alpha=0.6) for color in SCORE_COLORS]

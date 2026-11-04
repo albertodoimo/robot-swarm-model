@@ -73,8 +73,6 @@ def run_simulation(cfg: DictConfig) -> None:
         steps=max(1, steps),
         show_sounds=False,
         focal_bat=0,
-        rows=1,
-        columns=2,
         modules=[
             "arena",
             # "polarization_milling",
@@ -84,6 +82,12 @@ def run_simulation(cfg: DictConfig) -> None:
             # "sensory_volume",
         ],
     )
+
+    for filepath in os.listdir(hydra_job_dir):
+        if ".pkl" in filepath:
+            os.remove(hydra_job_dir + "/" + filepath)
+        elif "_initial.pkl" in filepath:
+            os.remove(hydra_job_dir + "/" + filepath)
 
 
 if __name__ == "__main__":

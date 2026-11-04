@@ -2,17 +2,18 @@ BAT_RADIUS: 0.06
 
 #emission
 CALL_DURATION: 0.01
-CALL_RATE: 5
+CALL_RATE: 6
 CALL_RATE_FAST: ${.CALL_RATE}
-NOISE_IN_CALL_RATE: 0.05 # +- shift in call rate, to avoid perfect synchrony
-CALL_DIRECTIONALITY: 4 # 8 db drop at the back and cardioid shape
+NOISE_IN_CALL_RATE: 0 # +- shift in call rate, to avoid perfect synchrony
+CALL_ORDER: "fixed" # "fixed": bats call in id order, evenly spaced; "random": random initial phase + jitter
+CALL_DIRECTIONALITY: 0 # 8 db drop at the back and cardioid shape
 EMITTED_SPL: 99
 
 #movement
-BAT_SLOW_SPEED: 0.03 # spped of straight movement in m/s
+BAT_SLOW_SPEED: 0.05 # speed of straight movement in m/s
 BAT_FAST_SPEED: ${.BAT_SLOW_SPEED}
 PROPENSITY_TO_CHANGE_DIRECTION: 0
-ROTATION_CALL_RATE_PRODUCT: 450   # = 170 deg/s * 2 Hz
+ROTATION_CALL_RATE_PRODUCT: 100   # = 170 deg/s * 2 Hz
 BAT_ROTATION_SPEED: ${div:${.ROTATION_CALL_RATE_PRODUCT},${.CALL_RATE}}
 ROTATION_TIME_DELAY_CAP: 0.030
 
@@ -40,8 +41,9 @@ LOUDNESS_TIME_DELAY_CAP: ${eval:'max(0.01, 1 / ${agents.CALL_RATE} - 0.080)'} #s
 SUSTAIN_SOUNDS: 1 
 SPL_THRESHOLD_FOR_ATTRACTION: 93
 SPL_THRESHOLD_FOR_REPULSION: 100
-ANGLE_RANGE_FOR_ATTRACTION: 20
-ANGLE_RANGE_FOR_REPULSION: 70
+ANGLE_RANGE_FOR_ATTRACTION: 180
+ANGLE_RANGE_FOR_REPULSION: 180
+NEIGHBOUR_SELECTION: "random" # "loudest": respond to the loudest cell; "random": respond to a random cell above threshold
 
 #redundant
 TIME_DELAY_THRESHOLD_FOR_REPULSION: 0.05
