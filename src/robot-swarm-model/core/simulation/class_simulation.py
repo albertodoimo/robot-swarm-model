@@ -188,7 +188,7 @@ class Simulation:
                 for jammer in self.jammers:
                     jammer.update(self.time_elapsed, self.sound_objects)
 
-                self.handle_reflections(self.time_elapsed)
+                # self.handle_reflections(self.time_elapsed) #comment out for remove reflections
 
                 self.sound_objects = [
                     s
@@ -248,7 +248,7 @@ class Simulation:
                 for jammer in self.jammers:
                     jammer.update(self.time_elapsed, self.sound_objects)
 
-                self.handle_reflections(self.time_elapsed)
+                # self.handle_reflections(self.time_elapsed) #comment out for remove reflections
 
                 self.sound_objects = [
                     s

@@ -117,7 +117,9 @@ def decide_next_direction_based_on_loudness(self, detected_sound_objects):
     self.cell_index_to_respond_to = cell_index_to_respond_to
 
     if np.isnan(cell_index_to_respond_to[0]):
-        next_direction = self.next_direction
+        # nothing to respond to: keep the current heading. Same as before when the
+        # target is reset at each call; with TURN_THROUGH_CALLS it stops an old turn.
+        next_direction = self.direction
         response_type = None
         self.any_loud_sound = "no"
 

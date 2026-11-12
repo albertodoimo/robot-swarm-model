@@ -23,6 +23,7 @@ class ArenaModule(AnimationModule):
         history,
         focal_bat,
         show_sounds,
+        grid_spacing=1,
         **_,
     ):
         self.parameters_df = parameters_df
@@ -33,23 +34,24 @@ class ArenaModule(AnimationModule):
         ax = self.ax
 
         # print("arena width:", parameters_df["ARENA_WIDTH"])
-        tick_spacing = 1
         ax.set_xlim(0, parameters_df["ARENA_WIDTH"])
         ax.set_ylim(0, parameters_df["ARENA_LENGTH"])
         ax.set_aspect("equal")
         ax.set_title("Bat Echolocation with Direct Calls and Echoes")
-        ax.grid(True, which="minor", color="gray", linestyle=":", alpha=0.5)
-        ax.grid(True, which="major", color="white", linestyle="-", alpha=0.5)
-        x_ticks = np.arange(
-            0, parameters_df["ARENA_WIDTH"] + tick_spacing, tick_spacing
-        )
-        y_ticks = np.arange(
-            0, parameters_df["ARENA_LENGTH"] + tick_spacing, tick_spacing
-        )
-        ax.set_xticks(x_ticks)
-        ax.set_yticks(y_ticks)
-
-        ax.minorticks_on()
+        if grid_spacing:
+            ax.grid(True, which="minor", color="gray", linestyle=":", alpha=0.5)
+            ax.grid(True, which="major", color="white", linestyle="-", alpha=0.5)
+            x_ticks = np.arange(
+                0, parameters_df["ARENA_WIDTH"] + grid_spacing, grid_spacing
+            )
+            y_ticks = np.arange(
+                0, parameters_df["ARENA_LENGTH"] + grid_spacing, grid_spacing
+            )
+            ax.set_xticks(x_ticks)
+            ax.set_yticks(y_ticks)
+            ax.minorticks_on()
+        else:
+            ax.grid(False)
 
         self.obstacle_patches = []
         for obstacle in obstacles:

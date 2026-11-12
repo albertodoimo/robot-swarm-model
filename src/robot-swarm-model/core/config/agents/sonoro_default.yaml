@@ -2,23 +2,24 @@ BAT_RADIUS: 0.06
 
 #emission
 CALL_DURATION: 0.01
-CALL_RATE: 6
+CALL_RATE: 3
 CALL_RATE_FAST: ${.CALL_RATE}
 NOISE_IN_CALL_RATE: 0 # +- shift in call rate, to avoid perfect synchrony
-CALL_ORDER: "fixed" # "fixed": bats call in id order, evenly spaced; "random": random initial phase + jitter
-CALL_DIRECTIONALITY: 0 # 8 db drop at the back and cardioid shape
+CALL_ORDER: "random" # "fixed": bats call in id order, evenly spaced; "random": random initial phase + jitter
+CALL_DIRECTIONALITY: 5 # 8 db drop at the back and cardioid shape
 EMITTED_SPL: 99
 
 #movement
-BAT_SLOW_SPEED: 0.05 # speed of straight movement in m/s
+BAT_SLOW_SPEED: 0.15 # speed of straight movement in m/s
 BAT_FAST_SPEED: ${.BAT_SLOW_SPEED}
 PROPENSITY_TO_CHANGE_DIRECTION: 0
-ROTATION_CALL_RATE_PRODUCT: 100   # = 170 deg/s * 2 Hz
+ROTATION_CALL_RATE_PRODUCT: 340   # = 170 deg/s * 2 Hz
 BAT_ROTATION_SPEED: ${div:${.ROTATION_CALL_RATE_PRODUCT},${.CALL_RATE}}
-ROTATION_TIME_DELAY_CAP: 0.030
+# BAT_ROTATION_SPEED: 200
+ROTATION_TIME_DELAY_CAP: 0.010
 
 #perception 
-HEARING_THRESHOLD: 85 # threshold for hearing a sound, lower isn't computed at all
+HEARING_THRESHOLD: 80 # threshold for hearing a sound, lower isn't computed at all
 HEARING_DIRECTIONALITY: 0
 BAT_RADIAL_RESOLUTION: 0.002
 BAT_ANGULAR_RESOLUTION: 10
@@ -37,13 +38,15 @@ CONVERT_GRIDS_TO_ONE_HOT: "yes"
 NUMBER_OF_CONSISTENT_IPIS_FOR_MOVEMENT: 3
 
 #passive listening related
-LOUDNESS_TIME_DELAY_CAP: ${eval:'max(0.01, 1 / ${agents.CALL_RATE} - 0.080)'} #start moving after listening
+LOUDNESS_TIME_DELAY_CAP: ${eval:'max(0.01, 1 / ${agents.CALL_RATE} - 0.15)'} #start moving after listening
 SUSTAIN_SOUNDS: 1 
-SPL_THRESHOLD_FOR_ATTRACTION: 93
-SPL_THRESHOLD_FOR_REPULSION: 100
-ANGLE_RANGE_FOR_ATTRACTION: 180
-ANGLE_RANGE_FOR_REPULSION: 180
+SPL_THRESHOLD_FOR_ATTRACTION: 99
+SPL_THRESHOLD_FOR_REPULSION: 110
+ANGLE_RANGE_FOR_ATTRACTION: 40
+ANGLE_RANGE_FOR_REPULSION: 90
 NEIGHBOUR_SELECTION: "random" # "loudest": respond to the loudest cell; "random": respond to a random cell above threshold
+LISTENING_WINDOW: "post_call" # "post_call": sounds heard between own call and decision; "full_ipi": every sound heard in the last inter-call interval
+TURN_THROUGH_CALLS: "no" # "yes": keep turning toward the target across own calls instead of resetting it at each call
 
 #redundant
 TIME_DELAY_THRESHOLD_FOR_REPULSION: 0.05

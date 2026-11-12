@@ -55,10 +55,13 @@ def visualize(
     rows=None,
     columns=None,
     modules=None,
+    grid_spacing=1,
 ):
     """Builds (and optionally saves) an animation made of the requested modules.
 
     Args:
+        grid_spacing (float, optional): spacing in m of the arena ticks and
+            major grid lines. None or 0 hides the arena grid.
         rows, columns (int, optional): grid shape. If both are None it is
             picked from the number of panel modules (as square as possible);
             if only one is given, the other is derived from it.
@@ -119,6 +122,7 @@ def visualize(
         focal_bat=focal_bat,
         show_sounds=show_sounds,
         steps=steps,
+        grid_spacing=grid_spacing,
     )
 
     for module in module_instances:

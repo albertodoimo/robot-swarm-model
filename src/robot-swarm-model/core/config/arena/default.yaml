@@ -1,9 +1,9 @@
 #time
-SIM_DURATION: 600
-TIME_STEP: 0.007
+SIM_DURATION: 180
+TIME_STEP: 0.005
 
 #agents
-NUM_BATS: 15
+NUM_BATS: 10
 JAMMER_RESOLUTION: 1000
 OBSTACLE_COUNT: 0
 OBSTACLE_RADIUS: 0.075
@@ -16,10 +16,10 @@ ARENA_TYPE: "open"
 
 #spawn region of the agents (rectangle in m, same frame as the arena)
 #null = whole arena with a 0.5 m margin from the walls
-SPAWN_X_MIN: 1
-SPAWN_X_MAX: 2
-SPAWN_Y_MIN: 1
-SPAWN_Y_MAX: 2
+SPAWN_X_MIN: 
+SPAWN_X_MAX: 
+SPAWN_Y_MIN: 
+SPAWN_Y_MAX: 
 
 #acoustics
 REFLECTION_LOSS: 0
@@ -34,6 +34,6 @@ OUTPUT_DIR_FOR_SIMULATION: "BLANK_TEST"
 #constants!
 SOUND_SPEED: 343
 AIR_ABSORPTION: 1
-seed: 123
+seed: 154
 
 DISTANCE_CAP: 20

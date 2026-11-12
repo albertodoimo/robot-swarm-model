@@ -73,6 +73,7 @@ def run_simulation(cfg: DictConfig) -> None:
         steps=max(1, steps),
         show_sounds=False,
         focal_bat=0,
+        grid_spacing=0,  # arena grid spacing in m; None or 0 hides the grid
         modules=[
             "arena",
             # "polarization_milling",

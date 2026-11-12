@@ -94,6 +94,7 @@ class EchoSound:
         angle_between_sound_and_receiver = self.direction_vector.angle_between(
             receiver_position
         )
+
         sound_directionality = self.sound_directionality(
             angle_between_sound_and_receiver
         )
