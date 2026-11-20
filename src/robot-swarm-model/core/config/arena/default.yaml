@@ -1,5 +1,5 @@
 #time
-SIM_DURATION: 180
+SIM_DURATION: 60
 TIME_STEP: 0.005
 
 #agents
@@ -9,17 +9,17 @@ OBSTACLE_COUNT: 0
 OBSTACLE_RADIUS: 0.075
 
 #arena 
-ARENA_WIDTH: 3
-ARENA_LENGTH: 3
+ARENA_WIDTH: 10
+ARENA_LENGTH: 10
 WALL_RESOLUTION: 1000
-ARENA_TYPE: "open"
+ARENA_TYPE: "bounded"
 
 #spawn region of the agents (rectangle in m, same frame as the arena)
 #null = whole arena with a 0.5 m margin from the walls
-SPAWN_X_MIN: 
-SPAWN_X_MAX: 
-SPAWN_Y_MIN: 
-SPAWN_Y_MAX: 
+SPAWN_X_MIN: 2
+SPAWN_X_MAX: 3
+SPAWN_Y_MIN: 2
+SPAWN_Y_MAX: 3
 
 #acoustics
 REFLECTION_LOSS: 0
@@ -33,7 +33,7 @@ OUTPUT_DIR_FOR_SIMULATION: "BLANK_TEST"
 
 #constants!
 SOUND_SPEED: 343
-AIR_ABSORPTION: 1
+AIR_ABSORPTION: 0
 seed: 154
 
 DISTANCE_CAP: 20

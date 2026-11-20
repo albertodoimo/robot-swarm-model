@@ -358,6 +358,38 @@ def given_time_and_angle_return_direction_loudest_sound(
     return next_direction.normalize(), response_type
 
 
+def given_angle_return_direction_to_sound(
+    angle_of_activated_cell,
+    parameters_df,
+    bat_direction,
+    allocentric_axis_y,
+):
+    """direction from the bat to the sound in the activated cell of the sensory grid.
+    Same reconstruction as given_time_and_angle_return_direction_loudest_sound
+    (random angle inside the cell), but never turned away: the force based rule
+    turns away by itself when the force is negative.
+
+    Args:
+        angle_of_activated_cell (float): column label of the cell, in radians
+        parameters_df (dict): parameter file used for the simulations
+        bat_direction (Vector): current heading of the bat
+        allocentric_axis_y (Vector): reference axis of the sensory grid
+
+    Returns:
+        Vector: unit vector pointing to the sound
+    """
+    spatial_reference_frame = parameters_df["SPATIAL_REFERENCE_FRAME"]
+    angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
+
+    noise_in_angle = np.random.uniform(-angular_resolution / 2, angular_resolution / 2)
+    angle_to_sound = angle_of_activated_cell - angular_resolution / 2 + noise_in_angle
+
+    if spatial_reference_frame == "allocentric":
+        angle_to_sound += bat_direction.angle_between(allocentric_axis_y)
+
+    return bat_direction.rotate(angle_to_sound).normalize()
+
+
 if __name__ == "__main__":
     dict_params = {
         "BAT_ANGULAR_RESOLUTION": 30,
